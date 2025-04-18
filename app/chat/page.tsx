@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
 import { Send, Menu } from "lucide-react"
-import { useMobile } from "@/hooks/use-mobile"
+import { useIsMobile } from "@/hooks/use-mobile"
 
 // Mock data for users
 const users = [
@@ -99,7 +99,7 @@ export default function ChatPage() {
   const [messages, setMessages] = useState(mockMessages)
   const [newMessage, setNewMessage] = useState("")
   const [sidebarOpen, setSidebarOpen] = useState(true)
-  const isMobile = useMobile()
+  const isMobile = useIsMobile()
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault()
