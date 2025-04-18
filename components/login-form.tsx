@@ -15,6 +15,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useMutation } from "@tanstack/react-query";
+import { authClient } from "@/lib/auth-client";
+import { toast } from "sonner";
+import { useState } from "react";
 
 const loginSchema = z.object({
   email: z.string().email({
@@ -26,6 +30,7 @@ const loginSchema = z.object({
 });
 
 export function LoginForm() {
+  const [error, setError] = useState<string | null>(null);
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -34,11 +39,29 @@ export function LoginForm() {
     },
   });
 
+  const { mutate, isPending } = useMutation({
+    mutationKey: ["login"],
+    mutationFn: async (values: z.infer<typeof loginSchema>) => {
+      await authClient.signIn.email(
+        {
+          email: values.email,
+          password: values.password,
+        },
+        {
+          onError: (error) => {
+            toast.error(`Erro ao fazer login: ${error.error.message}`);
+          },
+          onSuccess(context) {
+            toast.success("Bem-vindo de volta");
+          },
+        }
+      );
+    },
+  });
+
   // 2. Define a submit handler.
   function onSubmit(values: z.infer<typeof loginSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values);
+    mutate(values);
   }
 
   return (
@@ -77,7 +100,7 @@ export function LoginForm() {
           )}
         />
 
-        <Button type="submit" className="w-full">
+        <Button type="submit" className="w-full" disabled={isPending}>
           Login
         </Button>
         <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
