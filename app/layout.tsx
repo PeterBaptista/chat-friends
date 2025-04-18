@@ -8,7 +8,7 @@ import {
   QueryClient,
   QueryClientProvider,
 } from "@tanstack/react-query";
-import { TasnstackQueryProvider } from "@/providers/tanstack-query-provider";
+import { TanstackQueryProvider } from "@/providers/tanstack-query-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,7 +35,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <TasnstackQueryProvider>{children}</TasnstackQueryProvider>
+        <TanstackQueryProvider>{children}</TanstackQueryProvider>
       </body>
     </html>
   );
