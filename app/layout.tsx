@@ -25,8 +25,6 @@ export const metadata: Metadata = {
   description: "Chat with your friends in real time",
 };
 
-const queryClient = new QueryClient();
-
 export default function RootLayout({
   children,
 }: Readonly<{
