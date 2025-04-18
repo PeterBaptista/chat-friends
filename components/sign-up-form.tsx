@@ -17,19 +17,27 @@ import {
 import { Input } from "@/components/ui/input";
 
 const formSchema = z.object({
-  name: z.string().min(2, {
-    message: "Username must be at least 2 characters.",
-  }),
-  email: z.string().min(2, {
-    message: "email must be at least 2 characters.",
-  }),
-  password: z.string().min(8, {
-    message: "password must be at least 8 characters.",
-  }),
-  confirmPassword: z.string().min(8, {
-    message: "password must be at least 8 characters.",
-  })
-});
+    name: z.string().min(2, {
+      message: "Username must be at least 2 characters.",
+    }),
+    email: z.string().email({
+      message: "Por favor, insira um email válido.",
+    }),
+    password: z.string().min(8, {
+      message: "A senha deve ter pelo menos 8 caracteres.",
+    }),
+        confirmPassword: z.string().min(8, {
+          message: "A senha deve ter pelo menos 8 caracteres.",
+        }),
+    }).superRefine((values, ctx) => {
+        if (values.confirmPassword !== values.password) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "As senhas não coincidem.",
+            path: ["confirmPassword"],
+          });
+        }
+  });
 
 export default function SignUpForm() {
   // 1. Define your form.
@@ -97,9 +105,9 @@ export default function SignUpForm() {
             name="password"
             render={({ field }) => (
                 <FormItem>
-                <FormLabel>Password</FormLabel>
+                <FormLabel>Senha</FormLabel>
                 <FormControl>
-                    <Input placeholder="Digite uma senha" {...field} />
+                    <Input type="password" placeholder="Digite uma senha" {...field} />
                 </FormControl>
                 {/* <FormDescription>
                     This is your public display name.
@@ -113,9 +121,9 @@ export default function SignUpForm() {
             name="confirmPassword"
             render={({ field }) => (
                 <FormItem>
-                <FormLabel>Confirm password</FormLabel>
+                <FormLabel>Confirmar senha</FormLabel>
                 <FormControl>
-                    <Input placeholder="Repita a senha" {...field} />
+                    <Input type="password" placeholder="Repita a senha" {...field} />
                 </FormControl>
                 {/* <FormDescription>
                     This is your public display name.
