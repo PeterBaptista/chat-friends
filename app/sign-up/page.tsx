@@ -21,9 +21,11 @@ const formSchema = z.object({
     message: "Username must be at least 2 characters.",
   }),
   email: z.string().min(2, {
-    message: "Username must be at least 2 characters.",
+    message: "email must be at least 2 characters.",
   }),
-  age: z.number(),
+  age: z.string().min(8, {
+    message: "password must be at least 8 characters.",
+  }).max(16, ),
 });
 
 export default function SignUpForm() {
@@ -68,7 +70,7 @@ export default function SignUpForm() {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Nome Completo</FormLabel>
+              <FormLabel>Digite o meu email</FormLabel>
               <FormControl>
                 <Input placeholder="example@email.com" {...field} />
               </FormControl>
