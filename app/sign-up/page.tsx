@@ -1,120 +1,37 @@
 "use client";
+import { GalleryVerticalEnd } from "lucide-react";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { Icons } from "@/components/icons";
+import { LoginForm } from "@/components/login-form";
+import SignUpForm from "@/components/sign-up-form";
 
-import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-
-const formSchema = z.object({
-  name: z.string().min(2, {
-    message: "Username must be at least 2 characters.",
-  }),
-  email: z.string().min(2, {
-    message: "email must be at least 2 characters.",
-  }),
-  password: z.string().min(8, {
-    message: "password must be at least 8 characters.",
-  }),
-});
-
-export default function SignUpForm() {
-  // 1. Define your form.
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: "",
-      email: "", 
-      password: "", 
-    },
-  });
-
-  // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values);
-  }
-
+export default function LoginPage() {
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Nome Completo</FormLabel>
-              <FormControl>
-                <Input placeholder="Digite o seu nome completo" {...field} />
-              </FormControl>
-              {/* <FormDescription>
-                This is your public display name.
-              </FormDescription> */}
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Digite o meu email</FormLabel>
-              <FormControl>
-                <Input placeholder="example@email.com" {...field} />
-              </FormControl>
-              {/* <FormDescription>
-                This is your public display name.
-              </FormDescription> */}
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Password</FormLabel>
-              <FormControl>
-                <Input placeholder="Digite uma senha" {...field} />
-              </FormControl>
-              {/* <FormDescription>
-                This is your public display name.
-              </FormDescription> */}
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Password</FormLabel>
-              <FormControl>
-                <Input placeholder="Repita a senha" {...field} />
-              </FormControl>
-              {/* <FormDescription>
-                This is your public display name.
-              </FormDescription> */}
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Button type="submit">Submit</Button>
-      </form>
-    </Form>
+    <div className="grid min-h-svh lg:grid-cols-2">
+
+      <div className="bg-primary-foreground relative hidden lg:block">
+        <Icons.logo className="fill-primary absolute bottom-0 right-0 h-full w-full max-w-none  text-muted-foreground/20" />
+      </div>
+
+      <div className="flex flex-col gap-4 p-6 md:p-10">
+        
+        {/* <div className="flex justify-center gap-2 md:justify-start">
+          <a href="#" className="flex items-center gap-2 font-medium">
+            <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
+              <GalleryVerticalEnd className="size-4" />
+            </div>
+            Acme Inc.
+          </a>
+        </div> */}
+
+        <div className="flex flex-1 items-center justify-center">
+          <div className="w-full max-w-xs">
+            <SignUpForm />
+          </div>
+        </div>
+
+      </div>
+
+    </div>
   );
 }
