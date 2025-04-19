@@ -24,12 +24,11 @@ function isRouteMatch(pathname: string, routes: string[]): boolean {
 export async function middleware(request: NextRequest) {
   const protocol = request.nextUrl.protocol;
   const host = request.headers.get("host");
-  const baseURL = `${protocol}//${host}`;
 
   const { data: session } = await axios<Session>(
     `${process.env.NEXT_PUBLIC_API_URL}/api/auth/get-session`,
     {
-      baseURL: baseURL,
+      baseURL: process.env.NEXT_PUBLIC_APP_URL,
       headers: {
         // Get the cookie from the request
         cookie: request.headers.get("cookie") || "",
@@ -37,7 +36,7 @@ export async function middleware(request: NextRequest) {
       },
     }
   );
-  console.log("baseUrl", baseURL);
+  console.log("baseUrl", process.env.NEXT_PUBLIC_APP_URL);
   console.log("api_url", process.env.NEXT_PUBLIC_API_URL);
   console.log("cookies", request.headers.get("cookie"));
   console.log("session", session);
