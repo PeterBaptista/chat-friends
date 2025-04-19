@@ -2,7 +2,7 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 import type React from "react";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,10 +12,10 @@ import { Send, Menu } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useQuery } from "@tanstack/react-query";
 import axiosClient from "@/lib/axios-client";
-import { useChatSocket } from "@/hooks/use-chat-socket";
 import { v4 as uuid } from "uuid";
 import { authClient } from "@/lib/auth-client";
 import type { User } from "better-auth/types";
+import { Message, MessageList } from "@/components/message-list";
 
 // Mock data for users
 
@@ -23,12 +23,14 @@ import type { User } from "better-auth/types";
 
 function MessageInput({
   handleSendMessage,
+  disabled = false,
 }: {
   handleSendMessage: (
     e: React.FormEvent,
     newMessage: string,
     setNewMessage: (value: string) => void
   ) => void;
+  disabled?: boolean;
 }) {
   const [newMessage, setNewMessage] = useState("");
   return (
@@ -42,8 +44,9 @@ function MessageInput({
           onChange={(e) => setNewMessage(e.target.value)}
           placeholder="Digite sua mensagem..."
           className="flex-1"
+          disabled={disabled}
         />
-        <Button type="submit" size="icon">
+        <Button type="submit" size="icon" disabled={disabled}>
           <Send className="h-5 w-5" />
         </Button>
       </form>
@@ -54,7 +57,6 @@ function MessageInput({
 export default function ChatPage() {
   const { data: session } = authClient.useSession();
   const userId = session?.user?.id;
-  const messagesEndRef = useRef<HTMLDivElement>(null);
   const usersQuery = useQuery({
     queryKey: ["users"],
     queryFn: async () => {
@@ -67,42 +69,17 @@ export default function ChatPage() {
     },
     enabled: !!userId,
   });
+  const [messages, setMessages] = useState<Message[]>([]);
   const [selectedUser, setSelectedUser] = useState<User>();
-
-  const [messages, setMessages] = useState<any[]>([]);
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const isMobile = useIsMobile();
 
-  const { data } = useQuery({
-    queryKey: ["messages"],
-    queryFn: async () => {
-      const { data } = await axiosClient.get(`messages`);
-      console.log("query", data);
-      return data ?? [];
-    },
-  });
-
   useEffect(() => {
-    console.log("data", data);
-    setMessages(data ?? []);
-  }, [data]);
-  // Atualiza localmente sem invalidar a query
-  const { sendMessage } = useChatSocket(userId!, (newMessage: string) => {
-    const message = JSON.parse(newMessage);
-    console.log("newMessage");
-    setMessages((prev) => {
-      return [...prev, message];
-    });
-  });
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    if (isMobile) {
+      setSidebarOpen(false);
+    }
+  }, [isMobile]);
 
   const handleSendMessage = (
     e: React.FormEvent,
@@ -110,7 +87,7 @@ export default function ChatPage() {
     setNewMessage: (value: string) => void
   ) => {
     e.preventDefault();
-    if (newMessage.trim() === "") return;
+    if (newMessage.trim() === "" || !selectedUser) return;
 
     const newMsg = {
       id: uuid(),
@@ -119,18 +96,14 @@ export default function ChatPage() {
       userToId: selectedUser?.id,
       content: newMessage,
     };
-    console.log("newMessage", newMsg);
-    setMessages((prev) => {
-      return [...prev, newMsg];
-    });
 
-    console.log("newMsg", newMsg);
-    sendMessage(newMsg);
+    // The sendMessage is now handled in the MessageList component
+    // We just need to send the message to the server
+    axiosClient.post("/messages", newMsg);
 
     setNewMessage("");
   };
 
-  console.log("messages", messages);
   console.log("userId", userId);
   return (
     <div className="flex h-screen bg-gray-50">
@@ -211,46 +184,18 @@ export default function ChatPage() {
         </div>
 
         {/* Messages area */}
-        <ScrollArea className="flex-1 p-4 overflow-y-auto">
-          <div className="space-y-4">
-            {messages?.map((message) => (
-              <div
-                key={message.id}
-                className={cn(
-                  "flex",
-                  message?.userFromId === userId
-                    ? "justify-end"
-                    : "justify-start"
-                )}
-              >
-                <div
-                  className={cn(
-                    "max-w-[70%] rounded-lg p-3",
-                    message?.userFromId === userId
-                      ? "bg-blue-500 text-white"
-                      : "bg-gray-200 text-gray-800"
-                  )}
-                >
-                  <p>{message.content}</p>
-                  <p
-                    className={cn(
-                      "text-xs mt-1",
-                      message?.userFromId === userId
-                        ? "text-blue-100"
-                        : "text-gray-500"
-                    )}
-                  >
-                    {message.sendAt}
-                  </p>
-                </div>
-              </div>
-            ))}
-            <div ref={messagesEndRef} />
-          </div>
-        </ScrollArea>
+        <MessageList
+          selectedUser={selectedUser}
+          userId={userId!}
+          messages={messages}
+          setMessages={setMessages}
+        />
 
         {/* Message input */}
-        <MessageInput handleSendMessage={handleSendMessage} />
+        <MessageInput
+          handleSendMessage={handleSendMessage}
+          disabled={!selectedUser}
+        />
       </div>
     </div>
   );

@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { useMutation } from "@tanstack/react-query";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const loginSchema = z.object({
   email: z.string().email({
@@ -36,6 +37,8 @@ export function LoginForm() {
     },
   });
 
+  const router = useRouter();
+
   const { mutate, isPending } = useMutation({
     mutationKey: ["login"],
     mutationFn: async (values: z.infer<typeof loginSchema>) => {
@@ -50,6 +53,7 @@ export function LoginForm() {
           },
           onSuccess() {
             toast.success("Bem-vindo de volta");
+            router.push("/chat");
           },
         }
       );
