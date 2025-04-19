@@ -121,7 +121,7 @@ export function LoginForm() {
 
         <div className="text-center text-sm">
           Ainda não tem uma conta?
-          <a href="#" className="underline underline-offset-4">
+          <a href="/sign-up" className="underline underline-offset-4">
             Registre-se
           </a>
         </div>

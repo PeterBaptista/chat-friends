@@ -168,6 +168,12 @@ export default function SignUpForm() {
           <Button type="submit" className="w-full" disabled={isPending}>
             Sign up
           </Button>
+          <div className="text-center text-sm">
+            Já tem uma conta?
+            <a href="/login" className="underline underline-offset-4">
+              Faça login
+            </a>
+          </div>
         </form>
       </Form>
     </div>
