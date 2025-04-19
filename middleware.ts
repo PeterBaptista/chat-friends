@@ -37,6 +37,8 @@ export async function middleware(request: NextRequest) {
       },
     }
   );
+  console.log("baseUrl", baseURL);
+  console.log("api_url", process.env.NEXT_PUBLIC_API_URL);
   console.log("cookies", request.headers.get("cookie"));
   console.log("session", session);
   // Get the current path
