@@ -37,7 +37,8 @@ export async function middleware(request: NextRequest) {
       },
     }
   );
-
+  console.log("cookies", request.headers.get("cookie"));
+  console.log("session", session);
   // Get the current path
   const path = request.nextUrl.pathname;
 
