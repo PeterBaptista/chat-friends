@@ -1,4 +1,3 @@
-import { betterFetch } from "@better-fetch/fetch";
 import type { Session } from "better-auth/types";
 import { type NextRequest, NextResponse } from "next/server";
 
@@ -9,6 +8,8 @@ import {
   REDIRECT_DEFAULT_AUTHENTICATED_ROUTE,
   userRoutes,
 } from "./config/routes";
+
+import axios from "axios";
 
 function isRouteMatch(pathname: string, routes: string[]): boolean {
   return routes.some((route) => {
@@ -25,8 +26,8 @@ export async function middleware(request: NextRequest) {
   const host = request.headers.get("host");
   const baseURL = `${protocol}//${host}`;
 
-  const { data: session } = await betterFetch<Session>(
-    "/api/auth/get-session",
+  const { data: session } = await axios<Session>(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/auth/get-session`,
     {
       baseURL: baseURL,
       headers: {
@@ -37,6 +38,7 @@ export async function middleware(request: NextRequest) {
     }
   );
 
+  console.log("session", session);
   // Get the current path
   const path = request.nextUrl.pathname;
 
@@ -70,7 +72,7 @@ export async function middleware(request: NextRequest) {
 
   if (isProtectedRoute || isUserRoute) {
     if (!session) {
-      return NextResponse.redirect(new URL(`/sign-in`, request.nextUrl));
+      return NextResponse.redirect(new URL(`/login`, request.nextUrl));
     }
     // If protectedRoute and user is authenticated, give access
     return NextResponse.next();
