@@ -1,15 +1,18 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { cn } from "@/lib/utils"
-import { Send, Menu } from "lucide-react"
-import { useIsMobile } from "@/hooks/use-mobile"
+import { useEffect, useState } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { cn } from "@/lib/utils";
+import { Send, Menu } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useQuery } from "@tanstack/react-query";
+import axiosClient from "@/lib/axios-client";
+import { useChatSocket } from "@/hooks/use-chat-socket";
 
 // Mock data for users
 const users = [
@@ -53,71 +56,123 @@ const users = [
     lastMessage: "Vamos conversar amanhã.",
     lastMessageTime: "Ontem",
   },
-]
+];
 
 // Mock data for messages
 const mockMessages = [
   {
-    id: 1,
-    userId: 1,
-    text: "Olá, tudo bem?",
-    timestamp: "10:30",
+    id: "new",
+    userId: "pp6nEJlR1XMcyxULQNEcSsFsIDLwITRw",
+    content: "Olá, tudo bem?",
+    sendAt: new Date(),
     isMe: false,
   },
   {
-    id: 2,
-    userId: 1,
-    text: "Estou precisando de ajuda com um projeto.",
-    timestamp: "10:31",
+    id: "new1",
+    userId: "pp6nEJlR1XMcyxULQNEcSsFsIDLwITRw",
+    content: "Estou precisando de ajuda com um projeto.",
+    sendAt: new Date(),
     isMe: false,
   },
   {
-    id: 3,
-    userId: 1,
-    text: "Sim, claro! Em que posso ajudar?",
-    timestamp: "10:32",
+    id: "new3",
+    userId: "pp6nEJlR1XMcyxULQNEcSsFsIDLwITRw",
+    content: "Sim, claro! Em que posso ajudar?",
+    sendAt: new Date(),
     isMe: true,
   },
   {
-    id: 4,
-    userId: 1,
-    text: "Preciso de algumas ideias para um novo design.",
-    timestamp: "10:33",
+    id: "new4",
+    userId: "pp6nEJlR1XMcyxULQNEcSsFsIDLwITRw",
+    content: "Preciso de algumas ideias para um novo design.",
+    sendAt: new Date(),
     isMe: false,
   },
   {
-    id: 5,
-    userId: 1,
-    text: "Posso te mostrar alguns exemplos que fiz recentemente.",
-    timestamp: "10:34",
+    id: "new5",
+    userId: "pp6nEJlR1XMcyxULQNEcSsFsIDLwITRw",
+    content: "Posso te mostrar alguns exemplos que fiz recentemente.",
+    sendAt: new Date(),
     isMe: true,
   },
-]
+];
+
+function MessageInput({
+  handleSendMessage,
+}: {
+  handleSendMessage: (
+    e: React.FormEvent,
+    newMessage: string,
+    setNewMessage: (value: string) => void
+  ) => void;
+}) {
+  const [newMessage, setNewMessage] = useState("");
+  return (
+    <div className="p-4 border-t bg-white">
+      <form
+        onSubmit={(e) => handleSendMessage(e, newMessage, setNewMessage)}
+        className="flex space-x-2"
+      >
+        <Input
+          value={newMessage}
+          onChange={(e) => setNewMessage(e.target.value)}
+          placeholder="Digite sua mensagem..."
+          className="flex-1"
+        />
+        <Button type="submit" size="icon">
+          <Send className="h-5 w-5" />
+        </Button>
+      </form>
+    </div>
+  );
+}
 
 export default function ChatPage() {
-  const [selectedUser, setSelectedUser] = useState(users[0])
-  const [messages, setMessages] = useState(mockMessages)
-  const [newMessage, setNewMessage] = useState("")
-  const [sidebarOpen, setSidebarOpen] = useState(true)
-  const isMobile = useIsMobile()
+  const [selectedUser, setSelectedUser] = useState(users[0]);
+  const [messages, setMessages] = useState<any[]>([]);
 
-  const handleSendMessage = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (newMessage.trim() === "") return
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const isMobile = useIsMobile();
+
+  const { data } = useQuery({
+    queryKey: ["messages"],
+    queryFn: async () => {
+      const { data } = await axiosClient.get(`messages`);
+      console.log("query", data);
+      return data ?? [];
+    },
+  });
+
+  useEffect(() => {
+    console.log("data", data);
+    setMessages(data ?? []);
+  }, [data]);
+  // Atualiza localmente sem invalidar a query
+  const { sendMessage } = useChatSocket((newMessage) => {
+    console.log("newMessage", newMessage);
+    setMessages((prev) => [...prev, newMessage]);
+  });
+
+  console.log("renderizei");
+
+  const handleSendMessage = (
+    e: React.FormEvent,
+    newMessage: string,
+    setNewMessage: (value: string) => void
+  ) => {
+    e.preventDefault();
+    if (newMessage.trim() === "") return;
 
     const newMsg = {
-      id: messages.length + 1,
-      userId: selectedUser.id,
-      text: newMessage,
-      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-      isMe: true,
-    }
+      sendAt: new Date(),
+      userFromId: "pp6nEJlR1XMcyxULQNEcSsFsIDLwITRw",
+      userToId: "iJSWyzhGoaDAeoPtvgCmSETbRFbdoXAJ",
+      content: newMessage,
+    };
+    sendMessage(newMsg);
 
-    setMessages([...messages, newMsg])
-    setNewMessage("")
-  }
-
-  const filteredMessages = messages.filter((message) => message.userId === selectedUser.id)
+    setNewMessage("");
+  };
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -125,7 +180,7 @@ export default function ChatPage() {
       <div
         className={cn(
           "bg-white border-r w-80 flex-shrink-0 transition-all duration-300 ease-in-out",
-          isMobile && !sidebarOpen ? "-ml-80" : "ml-0",
+          isMobile && !sidebarOpen ? "-ml-80" : "ml-0"
         )}
       >
         <div className="p-4 border-b">
@@ -137,16 +192,19 @@ export default function ChatPage() {
               key={user.id}
               className={cn(
                 "p-3 flex items-center space-x-3 cursor-pointer hover:bg-gray-100",
-                selectedUser.id === user.id && "bg-gray-100",
+                selectedUser.id === user.id && "bg-gray-100"
               )}
               onClick={() => {
-                setSelectedUser(user)
-                if (isMobile) setSidebarOpen(false)
+                setSelectedUser(user);
+                if (isMobile) setSidebarOpen(false);
               }}
             >
               <div className="relative">
                 <Avatar>
-                  <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.name} />
+                  <AvatarImage
+                    src={user.avatar || "/placeholder.svg"}
+                    alt={user.name}
+                  />
                   <AvatarFallback>
                     {user.name
                       .split(" ")
@@ -160,9 +218,13 @@ export default function ChatPage() {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-medium">{user.name}</p>
-                <p className="text-sm text-gray-500 truncate">{user.lastMessage}</p>
+                <p className="text-sm text-gray-500 truncate">
+                  {user.lastMessage}
+                </p>
               </div>
-              <span className="text-xs text-gray-500">{user.lastMessageTime}</span>
+              <span className="text-xs text-gray-500">
+                {user.lastMessageTime}
+              </span>
             </div>
           ))}
         </ScrollArea>
@@ -173,12 +235,20 @@ export default function ChatPage() {
         {/* Chat header */}
         <div className="p-4 border-b bg-white flex items-center">
           {isMobile && (
-            <Button variant="ghost" size="icon" className="mr-2" onClick={() => setSidebarOpen(!sidebarOpen)}>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="mr-2"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+            >
               <Menu className="h-5 w-5" />
             </Button>
           )}
           <Avatar className="h-10 w-10 mr-3">
-            <AvatarImage src={selectedUser.avatar || "/placeholder.svg"} alt={selectedUser.name} />
+            <AvatarImage
+              src={selectedUser.avatar || "/placeholder.svg"}
+              alt={selectedUser.name}
+            />
             <AvatarFallback>
               {selectedUser.name
                 .split(" ")
@@ -188,24 +258,39 @@ export default function ChatPage() {
           </Avatar>
           <div>
             <h3 className="font-medium">{selectedUser.name}</h3>
-            <p className="text-xs text-gray-500">{selectedUser.online ? "Online" : "Offline"}</p>
+            <p className="text-xs text-gray-500">
+              {selectedUser.online ? "Online" : "Offline"}
+            </p>
           </div>
         </div>
 
         {/* Messages area */}
         <ScrollArea className="flex-1 p-4">
           <div className="space-y-4">
-            {filteredMessages.map((message) => (
-              <div key={message.id} className={cn("flex", message.isMe ? "justify-end" : "justify-start")}>
+            {messages?.map((message) => (
+              <div
+                key={message.id}
+                className={cn(
+                  "flex",
+                  message?.isMe ? "justify-end" : "justify-start"
+                )}
+              >
                 <div
                   className={cn(
                     "max-w-[70%] rounded-lg p-3",
-                    message.isMe ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-800",
+                    message?.isMe
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-200 text-gray-800"
                   )}
                 >
-                  <p>{message.text}</p>
-                  <p className={cn("text-xs mt-1", message.isMe ? "text-blue-100" : "text-gray-500")}>
-                    {message.timestamp}
+                  <p>{message.content}</p>
+                  <p
+                    className={cn(
+                      "text-xs mt-1",
+                      message?.isMe ? "text-blue-100" : "text-gray-500"
+                    )}
+                  >
+                    {message.sendAt}
                   </p>
                 </div>
               </div>
@@ -214,20 +299,8 @@ export default function ChatPage() {
         </ScrollArea>
 
         {/* Message input */}
-        <div className="p-4 border-t bg-white">
-          <form onSubmit={handleSendMessage} className="flex space-x-2">
-            <Input
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              placeholder="Digite sua mensagem..."
-              className="flex-1"
-            />
-            <Button type="submit" size="icon">
-              <Send className="h-5 w-5" />
-            </Button>
-          </form>
-        </div>
+        <MessageInput handleSendMessage={handleSendMessage} />
       </div>
     </div>
-  )
+  );
 }
