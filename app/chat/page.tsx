@@ -1,5 +1,5 @@
 "use client";
-
+/* eslint-disable  @typescript-eslint/no-explicit-any */
 import type React from "react";
 
 import { useEffect, useState } from "react";
@@ -13,6 +13,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useQuery } from "@tanstack/react-query";
 import axiosClient from "@/lib/axios-client";
 import { useChatSocket } from "@/hooks/use-chat-socket";
+import { v4 as uuid } from "uuid";
 
 // Mock data for users
 const users = [
@@ -59,43 +60,6 @@ const users = [
 ];
 
 // Mock data for messages
-const mockMessages = [
-  {
-    id: "new",
-    userId: "pp6nEJlR1XMcyxULQNEcSsFsIDLwITRw",
-    content: "Olá, tudo bem?",
-    sendAt: new Date(),
-    isMe: false,
-  },
-  {
-    id: "new1",
-    userId: "pp6nEJlR1XMcyxULQNEcSsFsIDLwITRw",
-    content: "Estou precisando de ajuda com um projeto.",
-    sendAt: new Date(),
-    isMe: false,
-  },
-  {
-    id: "new3",
-    userId: "pp6nEJlR1XMcyxULQNEcSsFsIDLwITRw",
-    content: "Sim, claro! Em que posso ajudar?",
-    sendAt: new Date(),
-    isMe: true,
-  },
-  {
-    id: "new4",
-    userId: "pp6nEJlR1XMcyxULQNEcSsFsIDLwITRw",
-    content: "Preciso de algumas ideias para um novo design.",
-    sendAt: new Date(),
-    isMe: false,
-  },
-  {
-    id: "new5",
-    userId: "pp6nEJlR1XMcyxULQNEcSsFsIDLwITRw",
-    content: "Posso te mostrar alguns exemplos que fiz recentemente.",
-    sendAt: new Date(),
-    isMe: true,
-  },
-];
 
 function MessageInput({
   handleSendMessage,
@@ -150,10 +114,10 @@ export default function ChatPage() {
   // Atualiza localmente sem invalidar a query
   const { sendMessage } = useChatSocket((newMessage) => {
     console.log("newMessage", newMessage);
-    setMessages((prev) => [...prev, newMessage]);
+    setMessages((prev) => {
+      return [...prev, JSON.parse(newMessage)];
+    });
   });
-
-  console.log("renderizei");
 
   const handleSendMessage = (
     e: React.FormEvent,
@@ -164,6 +128,7 @@ export default function ChatPage() {
     if (newMessage.trim() === "") return;
 
     const newMsg = {
+      id: uuid(),
       sendAt: new Date(),
       userFromId: "pp6nEJlR1XMcyxULQNEcSsFsIDLwITRw",
       userToId: "iJSWyzhGoaDAeoPtvgCmSETbRFbdoXAJ",
@@ -265,7 +230,7 @@ export default function ChatPage() {
         </div>
 
         {/* Messages area */}
-        <ScrollArea className="flex-1 p-4">
+        <ScrollArea className="flex-1 p-4 overflow-y-auto">
           <div className="space-y-4">
             {messages?.map((message) => (
               <div

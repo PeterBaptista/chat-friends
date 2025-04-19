@@ -1,8 +1,7 @@
 "use client";
-import { GalleryVerticalEnd } from "lucide-react";
 
 import { Icons } from "@/components/icons";
-import { LoginForm } from "@/components/login-form";
+
 import SignUpForm from "@/components/sign-up-form";
 
 export default function Page() {

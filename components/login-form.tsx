@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -18,7 +17,6 @@ import { Input } from "@/components/ui/input";
 import { useMutation } from "@tanstack/react-query";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
-import { useState } from "react";
 
 const loginSchema = z.object({
   email: z.string().email({
@@ -30,7 +28,6 @@ const loginSchema = z.object({
 });
 
 export function LoginForm() {
-  const [error, setError] = useState<string | null>(null);
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -51,7 +48,7 @@ export function LoginForm() {
           onError: (error) => {
             toast.error(`Erro ao fazer login: ${error.error.message}`);
           },
-          onSuccess(context) {
+          onSuccess() {
             toast.success("Bem-vindo de volta");
           },
         }

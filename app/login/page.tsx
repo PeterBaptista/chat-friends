@@ -1,5 +1,4 @@
 "use client";
-import { GalleryVerticalEnd } from "lucide-react";
 
 import { Icons } from "@/components/icons";
 import { LoginForm } from "@/components/login-form";

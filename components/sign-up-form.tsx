@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -71,7 +70,7 @@ export default function SignUpForm() {
           onError: (error) => {
             toast.error(`Erro ao fazer se cadastrar: ${error.error.message}`);
           },
-          onSuccess(context) {
+          onSuccess() {
             router.push("/login");
           },
         }
