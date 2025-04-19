@@ -1,6 +1,6 @@
 "use client";
 
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useRef } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
@@ -31,31 +31,24 @@ export function MessageList({
 }: MessageListProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const messagesQuery = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["messages", selectedUser?.id],
     queryFn: async () => {
       if (!selectedUser) return [];
       const { data } = await axiosClient.get(`messages`);
       return data ?? [];
     },
+    staleTime: Infinity,
     enabled: !!selectedUser,
   });
 
-  const isLoadingMessages = messagesQuery.isLoading;
-
   useEffect(() => {
-    if (messagesQuery.data) {
-      setMessages(messagesQuery.data);
+    if (data) {
+      setMessages(data);
     }
-  }, [messagesQuery.data]);
+  }, [data]);
 
   // Atualiza localmente sem invalidar a query
-  const { sendMessage } = useChatSocket(userId, (newMessage: string) => {
-    const message = JSON.parse(newMessage);
-    setMessages((prev) => {
-      return [...prev, message];
-    });
-  });
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -80,7 +73,7 @@ export function MessageList({
     );
   }
 
-  if (isLoadingMessages) {
+  if (isLoading) {
     return (
       <ScrollArea className="flex-1 p-4 overflow-y-auto">
         <div className="h-full flex items-center justify-center">

@@ -2,8 +2,8 @@ import "dotenv/config";
 import { useEffect, useRef } from "react";
 
 export const useChatSocket = (
-  userId: string,
-  onMessage: (msg: string) => void
+  userId?: string,
+  onMessage?: (msg: string) => void
 ) => {
   const ws = useRef<WebSocket | null>(null);
 
@@ -24,7 +24,7 @@ export const useChatSocket = (
     };
 
     ws.current.onmessage = (event) => {
-      onMessage(event.data);
+      onMessage?.(event.data);
     };
 
     ws.current.onclose = () => {

@@ -1,5 +1,5 @@
 "use client";
-/* eslint-disable  @typescript-eslint/no-explicit-any */
+
 import type React from "react";
 
 import { useEffect, useState } from "react";
@@ -16,6 +16,7 @@ import { v4 as uuid } from "uuid";
 import { authClient } from "@/lib/auth-client";
 import type { User } from "better-auth/types";
 import { Message, MessageList } from "@/components/message-list";
+import { useChatSocket } from "@/hooks/use-chat-socket";
 
 // Mock data for users
 
@@ -81,6 +82,14 @@ export default function ChatPage() {
     }
   }, [isMobile]);
 
+  const { sendMessage } = useChatSocket(userId, (newMessage: string) => {
+    const message = JSON.parse(newMessage);
+
+    setMessages((prev) => {
+      return [...prev, message];
+    });
+  });
+
   const handleSendMessage = (
     e: React.FormEvent,
     newMessage: string,
@@ -99,8 +108,10 @@ export default function ChatPage() {
 
     // The sendMessage is now handled in the MessageList component
     // We just need to send the message to the server
-    axiosClient.post("/messages", newMsg);
-
+    sendMessage(newMsg);
+    setMessages((prev) => {
+      return [...prev, newMsg];
+    });
     setNewMessage("");
   };
 
