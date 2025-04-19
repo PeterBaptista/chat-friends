@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { useEffect, useRef } from "react";
 
 export const useChatSocket = (onMessage: (msg: any) => void) => {
