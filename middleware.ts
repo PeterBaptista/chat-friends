@@ -38,7 +38,6 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  console.log("session", session);
   // Get the current path
   const path = request.nextUrl.pathname;
 
