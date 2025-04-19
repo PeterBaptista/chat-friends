@@ -2,7 +2,7 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 import type React from "react";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,50 +14,10 @@ import { useQuery } from "@tanstack/react-query";
 import axiosClient from "@/lib/axios-client";
 import { useChatSocket } from "@/hooks/use-chat-socket";
 import { v4 as uuid } from "uuid";
+import { authClient } from "@/lib/auth-client";
+import type { User } from "better-auth/types";
 
 // Mock data for users
-const users = [
-  {
-    id: 1,
-    name: "João Silva",
-    avatar: "/placeholder.svg?height=40&width=40",
-    online: true,
-    lastMessage: "Olá, tudo bem?",
-    lastMessageTime: "10:30",
-  },
-  {
-    id: 2,
-    name: "Maria Oliveira",
-    avatar: "/placeholder.svg?height=40&width=40",
-    online: true,
-    lastMessage: "Vamos marcar uma reunião?",
-    lastMessageTime: "09:15",
-  },
-  {
-    id: 3,
-    name: "Pedro Santos",
-    avatar: "/placeholder.svg?height=40&width=40",
-    online: false,
-    lastMessage: "Obrigado pela ajuda!",
-    lastMessageTime: "Ontem",
-  },
-  {
-    id: 4,
-    name: "Ana Costa",
-    avatar: "/placeholder.svg?height=40&width=40",
-    online: true,
-    lastMessage: "Já enviei o documento.",
-    lastMessageTime: "08:45",
-  },
-  {
-    id: 5,
-    name: "Carlos Ferreira",
-    avatar: "/placeholder.svg?height=40&width=40",
-    online: false,
-    lastMessage: "Vamos conversar amanhã.",
-    lastMessageTime: "Ontem",
-  },
-];
 
 // Mock data for messages
 
@@ -92,7 +52,23 @@ function MessageInput({
 }
 
 export default function ChatPage() {
-  const [selectedUser, setSelectedUser] = useState(users[0]);
+  const { data: session } = authClient.useSession();
+  const userId = session?.user?.id;
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const usersQuery = useQuery({
+    queryKey: ["users"],
+    queryFn: async () => {
+      const { data } = await axiosClient.get("/users", {
+        params: {
+          userId: userId,
+        },
+      });
+      return data ?? [];
+    },
+    enabled: !!userId,
+  });
+  const [selectedUser, setSelectedUser] = useState<User>();
+
   const [messages, setMessages] = useState<any[]>([]);
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -112,12 +88,21 @@ export default function ChatPage() {
     setMessages(data ?? []);
   }, [data]);
   // Atualiza localmente sem invalidar a query
-  const { sendMessage } = useChatSocket((newMessage) => {
-    console.log("newMessage", newMessage);
+  const { sendMessage } = useChatSocket(userId!, (newMessage: string) => {
+    const message = JSON.parse(newMessage);
+    console.log("newMessage");
     setMessages((prev) => {
-      return [...prev, JSON.parse(newMessage)];
+      return [...prev, message];
     });
   });
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   const handleSendMessage = (
     e: React.FormEvent,
@@ -129,16 +114,24 @@ export default function ChatPage() {
 
     const newMsg = {
       id: uuid(),
-      sendAt: new Date(),
-      userFromId: "pp6nEJlR1XMcyxULQNEcSsFsIDLwITRw",
-      userToId: "iJSWyzhGoaDAeoPtvgCmSETbRFbdoXAJ",
+      sendAt: new Date().toISOString(),
+      userFromId: userId!,
+      userToId: selectedUser?.id,
       content: newMessage,
     };
+    console.log("newMessage", newMsg);
+    setMessages((prev) => {
+      return [...prev, newMsg];
+    });
+
+    console.log("newMsg", newMsg);
     sendMessage(newMsg);
 
     setNewMessage("");
   };
 
+  console.log("messages", messages);
+  console.log("userId", userId);
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar for user selection */}
@@ -152,12 +145,12 @@ export default function ChatPage() {
           <h2 className="text-xl font-bold">Conversas</h2>
         </div>
         <ScrollArea className="h-[calc(100vh-65px)]">
-          {users.map((user) => (
+          {usersQuery.data?.map((user: User) => (
             <div
               key={user.id}
               className={cn(
                 "p-3 flex items-center space-x-3 cursor-pointer hover:bg-gray-100",
-                selectedUser.id === user.id && "bg-gray-100"
+                selectedUser?.id === user.id && "bg-gray-100"
               )}
               onClick={() => {
                 setSelectedUser(user);
@@ -167,7 +160,7 @@ export default function ChatPage() {
               <div className="relative">
                 <Avatar>
                   <AvatarImage
-                    src={user.avatar || "/placeholder.svg"}
+                    src={user.image || "/placeholder.svg"}
                     alt={user.name}
                   />
                   <AvatarFallback>
@@ -177,19 +170,10 @@ export default function ChatPage() {
                       .join("")}
                   </AvatarFallback>
                 </Avatar>
-                {user.online && (
-                  <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></span>
-                )}
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-medium">{user.name}</p>
-                <p className="text-sm text-gray-500 truncate">
-                  {user.lastMessage}
-                </p>
               </div>
-              <span className="text-xs text-gray-500">
-                {user.lastMessageTime}
-              </span>
             </div>
           ))}
         </ScrollArea>
@@ -211,21 +195,18 @@ export default function ChatPage() {
           )}
           <Avatar className="h-10 w-10 mr-3">
             <AvatarImage
-              src={selectedUser.avatar || "/placeholder.svg"}
-              alt={selectedUser.name}
+              src={selectedUser?.image || "/placeholder.svg"}
+              alt={selectedUser?.name || ""}
             />
             <AvatarFallback>
-              {selectedUser.name
+              {selectedUser?.name
                 .split(" ")
                 .map((n) => n[0])
                 .join("")}
             </AvatarFallback>
           </Avatar>
           <div>
-            <h3 className="font-medium">{selectedUser.name}</h3>
-            <p className="text-xs text-gray-500">
-              {selectedUser.online ? "Online" : "Offline"}
-            </p>
+            <h3 className="font-medium">{selectedUser?.name || ""}</h3>
           </div>
         </div>
 
@@ -237,13 +218,15 @@ export default function ChatPage() {
                 key={message.id}
                 className={cn(
                   "flex",
-                  message?.isMe ? "justify-end" : "justify-start"
+                  message?.userFromId === userId
+                    ? "justify-end"
+                    : "justify-start"
                 )}
               >
                 <div
                   className={cn(
                     "max-w-[70%] rounded-lg p-3",
-                    message?.isMe
+                    message?.userFromId === userId
                       ? "bg-blue-500 text-white"
                       : "bg-gray-200 text-gray-800"
                   )}
@@ -252,7 +235,9 @@ export default function ChatPage() {
                   <p
                     className={cn(
                       "text-xs mt-1",
-                      message?.isMe ? "text-blue-100" : "text-gray-500"
+                      message?.userFromId === userId
+                        ? "text-blue-100"
+                        : "text-gray-500"
                     )}
                   >
                     {message.sendAt}
@@ -260,6 +245,7 @@ export default function ChatPage() {
                 </div>
               </div>
             ))}
+            <div ref={messagesEndRef} />
           </div>
         </ScrollArea>
 
