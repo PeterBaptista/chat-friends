@@ -29,10 +29,12 @@ export async function middleware(request: NextRequest) {
     `${process.env.NEXT_PUBLIC_API_URL}/api/auth/get-session`,
     {
       baseURL: process.env.NEXT_PUBLIC_APP_URL,
+
       headers: {
         // Get the cookie from the request
         cookie: request.headers.get("cookie") || "",
         host: host || "",
+        origin: process.env.NEXT_PUBLIC_APP_URL,
       },
     }
   );
