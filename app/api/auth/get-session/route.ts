@@ -1,6 +1,5 @@
 import axios from "axios";
 import { Session } from "better-auth/types";
-import { cookies } from "next/headers";
 
 import { NextRequest, NextResponse } from "next/server";
 
@@ -22,6 +21,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(response?.data);
   } catch (error) {
     console.error("Error fetching session:", error);
-    return null;
+    return NextResponse.json(null);
   }
 }
