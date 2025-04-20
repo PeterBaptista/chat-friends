@@ -25,63 +25,68 @@ export async function middleware(request: NextRequest) {
   const protocol = request.nextUrl.protocol;
   const host = request.headers.get("host");
 
-  const { data: session } = await axios<Session>(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/auth/get-session`,
-    {
-      baseURL: process.env.NEXT_PUBLIC_APP_URL,
+  try {
+    const { data: session } = await axios<Session>(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/auth/get-session`,
+      {
+        baseURL: process.env.NEXT_PUBLIC_APP_URL,
 
-      headers: {
-        // Get the cookie from the request
-        cookie: request.headers.get("cookie") || "",
-        host: host || "",
-        origin: process.env.NEXT_PUBLIC_APP_URL,
-      },
+        headers: {
+          // Get the cookie from the request
+          cookie: request.headers.get("cookie") || "",
+          host: host || "",
+          origin: process.env.NEXT_PUBLIC_APP_URL,
+        },
+      }
+    );
+    console.log("baseUrl", process.env.NEXT_PUBLIC_APP_URL);
+    console.log("api_url", process.env.NEXT_PUBLIC_API_URL);
+    console.log("cookies", request.headers.get("cookie"));
+    console.log("session", session);
+    // Get the current path
+    const path = request.nextUrl.pathname;
+
+    const isProtectedRoute = isRouteMatch(path, protectedRoutes);
+    const isPublicRoute = isRouteMatch(path, publicRoutes);
+    const isAuthRoute = isRouteMatch(path, authRoutes);
+    const isUserRoute = isRouteMatch(path, userRoutes);
+
+    /**
+     * If route is public, give access.
+     */
+    if (isPublicRoute) {
+      return NextResponse.next();
     }
-  );
-  console.log("baseUrl", process.env.NEXT_PUBLIC_APP_URL);
-  console.log("api_url", process.env.NEXT_PUBLIC_API_URL);
-  console.log("cookies", request.headers.get("cookie"));
-  console.log("session", session);
-  // Get the current path
-  const path = request.nextUrl.pathname;
 
-  const isProtectedRoute = isRouteMatch(path, protectedRoutes);
-  const isPublicRoute = isRouteMatch(path, publicRoutes);
-  const isAuthRoute = isRouteMatch(path, authRoutes);
-  const isUserRoute = isRouteMatch(path, userRoutes);
+    /**
+     * If route is protected and user is not signed in return user to login page.
+     * Returned user must have proper callback url when redirected to login page.
+     */
 
-  /**
-   * If route is public, give access.
-   */
-  if (isPublicRoute) {
+    if (isAuthRoute) {
+      // If auth route and user is authenticated redirect user to dashboard.
+      if (session) {
+        return NextResponse.redirect(
+          new URL(REDIRECT_DEFAULT_AUTHENTICATED_ROUTE, request.nextUrl)
+        );
+      }
+      // If authRoute and not authenticated, allow access
+      return NextResponse.next();
+    }
+
+    if (isProtectedRoute || isUserRoute) {
+      if (!session) {
+        return NextResponse.redirect(new URL(`/login`, request.nextUrl));
+      }
+      // If protectedRoute and user is authenticated, give access
+      return NextResponse.next();
+    }
+
+    return NextResponse.next();
+  } catch (error) {
+    console.error("Error fetching session:", error);
     return NextResponse.next();
   }
-
-  /**
-   * If route is protected and user is not signed in return user to login page.
-   * Returned user must have proper callback url when redirected to login page.
-   */
-
-  if (isAuthRoute) {
-    // If auth route and user is authenticated redirect user to dashboard.
-    if (session) {
-      return NextResponse.redirect(
-        new URL(REDIRECT_DEFAULT_AUTHENTICATED_ROUTE, request.nextUrl)
-      );
-    }
-    // If authRoute and not authenticated, allow access
-    return NextResponse.next();
-  }
-
-  if (isProtectedRoute || isUserRoute) {
-    if (!session) {
-      return NextResponse.redirect(new URL(`/login`, request.nextUrl));
-    }
-    // If protectedRoute and user is authenticated, give access
-    return NextResponse.next();
-  }
-
-  return NextResponse.next();
 }
 
 export const config = {
