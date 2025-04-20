@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
         baseURL: process.env.NEXT_PUBLIC_APP_URL,
         headers: {
           // Get the cookie from the request
-          host: process.env.NEXT_PUBLIC_APP_URL,
+
           origin: process.env.NEXT_PUBLIC_APP_URL,
           cookie: request.headers.get("cookie") || "",
         },
