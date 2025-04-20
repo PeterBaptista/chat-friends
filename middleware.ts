@@ -85,7 +85,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   } catch (error) {
     console.error("Error fetching session:", error);
-    return NextResponse.next();
+    return NextResponse.redirect(new URL(`/login`, request.nextUrl));
   }
 }
 
