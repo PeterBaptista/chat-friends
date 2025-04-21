@@ -6,6 +6,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import shadcnAvatar from "@/public/shadcn-avatar.png";
 
@@ -52,6 +53,8 @@ export function NavMain() {
     [searchParams]
   );
 
+  const { toggleSidebar } = useSidebar();
+
   const { data: session } = authClient.useSession();
   const userId = session?.user?.id;
 
@@ -73,6 +76,7 @@ export function NavMain() {
             <SidebarMenuButton
               tooltip={user.name}
               onClick={() => {
+                toggleSidebar();
                 router.push(
                   pathname + "?" + createQueryString("userId", user.id)
                 );
