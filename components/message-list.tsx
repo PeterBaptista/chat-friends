@@ -50,14 +50,6 @@ export function MessageList({
 
   // Atualiza localmente sem invalidar a query
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
   if (!selectedUser?.id) {
     return (
       <ScrollArea className="flex-1 p-4 overflow-y-auto">
@@ -86,9 +78,12 @@ export function MessageList({
   }
 
   return (
-    <ScrollArea className="flex-1 p-4 overflow-y-auto">
-      <div className="space-y-4">
-        {messages.map((message) => (
+    <div className="space-y-4 flex flex-1 flex-col-reverse overflow-y-auto px-4">
+      {messages
+        .sort(
+          (a, b) => new Date(b.sendAt).getTime() - new Date(a.sendAt).getTime()
+        )
+        .map((message) => (
           <div
             key={message.id}
             className={cn(
@@ -118,8 +113,7 @@ export function MessageList({
             </div>
           </div>
         ))}
-        <div ref={messagesEndRef} />
-      </div>
-    </ScrollArea>
+      <div ref={messagesEndRef} />
+    </div>
   );
 }
