@@ -14,7 +14,7 @@ import {
   SquareTerminal,
 } from "lucide-react";
 
-import { NavMain } from "@/components/nav-main";
+import { NavMain, UsersFallback } from "@/components/nav-main";
 import { NavProjects } from "@/components/nav-projects";
 import { NavUser } from "@/components/nav-user";
 import { TeamSwitcher } from "@/components/team-switcher";
@@ -26,6 +26,7 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { SidebarLogo } from "./sidebar-logo";
+import { Suspense } from "react";
 
 // This is sample data.
 const data = {
@@ -164,7 +165,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarLogo />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain />
+        <Suspense fallback={<UsersFallback />}>
+          <NavMain />
+        </Suspense>
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />

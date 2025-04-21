@@ -17,6 +17,24 @@ import { User } from "better-auth/types";
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback } from "react";
+import { Skeleton } from "./ui/skeleton";
+
+export function UsersFallback() {
+  return (
+    <SidebarGroup>
+      <SidebarGroupLabel>Amigos</SidebarGroupLabel>
+      <SidebarMenu>
+        {Array.from({ length: 5 }).map((_, index) => (
+          <SidebarMenuItem key={index} className="flex items-center gap-2 px-2">
+            <Skeleton className="h-6 w-6 rounded-full bg-muted-foreground/40" />
+
+            <Skeleton className="h-4 w-full bg-muted-foreground/40" />
+          </SidebarMenuItem>
+        ))}
+      </SidebarMenu>
+    </SidebarGroup>
+  );
+}
 
 export function NavMain() {
   const searchParams = useSearchParams();
@@ -47,6 +65,7 @@ export function NavMain() {
     },
     enabled: !!userId,
   });
+  if (usersQuery.isLoading) return <UsersFallback />;
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Amigos</SidebarGroupLabel>
