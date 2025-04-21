@@ -14,11 +14,12 @@ import { useQuery } from "@tanstack/react-query";
 import axiosClient from "@/lib/axios-client";
 import { v4 as uuid } from "uuid";
 import { authClient } from "@/lib/auth-client";
-import type { User } from "better-auth/types";
 import { Message, MessageList } from "@/components/message-list";
 import { useChatSocket } from "@/hooks/use-chat-socket";
 import { useSidebar } from "@/components/ui/sidebar";
-
+import { useSearchParams } from "next/navigation";
+import shadcnAvatar from "@/public/shadcn-avatar.png";
+import Image from "next/image";
 // Mock data for users
 
 // Mock data for messages
@@ -59,29 +60,22 @@ function MessageInput({
 export default function ChatPage() {
   const { data: session } = authClient.useSession();
   const userId = session?.user?.id;
-  const usersQuery = useQuery({
-    queryKey: ["users"],
+
+  const searchParams = useSearchParams();
+  const userIdParam = searchParams.get("userId");
+
+  const userQuery = useQuery({
+    queryKey: ["user", userIdParam],
     queryFn: async () => {
-      const { data } = await axiosClient.get("/users", {
-        params: {
-          userId: userId,
-        },
-      });
+      const { data } = await axiosClient.get(`/users/${userIdParam}`);
       return data ?? [];
     },
-    enabled: !!userId,
+    enabled: !!userIdParam,
   });
+
   const [messages, setMessages] = useState<Message[]>([]);
-  const [selectedUser, setSelectedUser] = useState<User>();
 
-  const [sidebarOpen, setSidebarOpen] = useState(true);
   const isMobile = useIsMobile();
-
-  useEffect(() => {
-    if (isMobile) {
-      setSidebarOpen(false);
-    }
-  }, [isMobile]);
 
   const { sendMessage } = useChatSocket(userId, (newMessage: string) => {
     const message = JSON.parse(newMessage);
@@ -97,13 +91,13 @@ export default function ChatPage() {
     setNewMessage: (value: string) => void
   ) => {
     e.preventDefault();
-    if (newMessage.trim() === "" || !selectedUser) return;
+    if (newMessage.trim() === "" || !userIdParam) return;
 
     const newMsg = {
       id: uuid(),
       sendAt: new Date().toISOString(),
       userFromId: userId!,
-      userToId: selectedUser?.id,
+      userToId: userIdParam!,
       content: newMessage,
     };
 
@@ -119,51 +113,6 @@ export default function ChatPage() {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      {/* Sidebar for user selection */}
-      <div
-        className={cn(
-          "bg-white border-r w-80 flex-shrink-0 transition-all duration-300 ease-in-out",
-          isMobile && !sidebarOpen ? "-ml-80" : "ml-0"
-        )}
-      >
-        <div className="p-4 border-b">
-          <h2 className="text-xl font-bold">Conversas</h2>
-        </div>
-        <ScrollArea className="h-[calc(100vh-65px)]">
-          {usersQuery.data?.map((user: User) => (
-            <div
-              key={user.id}
-              className={cn(
-                "p-3 flex items-center space-x-3 cursor-pointer hover:bg-gray-100",
-                selectedUser?.id === user.id && "bg-gray-100"
-              )}
-              onClick={() => {
-                setSelectedUser(user);
-                if (isMobile) setSidebarOpen(false);
-              }}
-            >
-              <div className="relative">
-                <Avatar>
-                  <AvatarImage
-                    src={user.image || "/placeholder.svg"}
-                    alt={user.name}
-                  />
-                  <AvatarFallback>
-                    {user.name
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")}
-                  </AvatarFallback>
-                </Avatar>
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-medium">{user.name}</p>
-              </div>
-            </div>
-          ))}
-        </ScrollArea>
-      </div>
-
       {/* Main chat area */}
       <div className="flex-1 flex flex-col">
         {/* Chat header */}
@@ -181,24 +130,27 @@ export default function ChatPage() {
 
           <Avatar className="h-10 w-10 mr-3">
             <AvatarImage
-              src={selectedUser?.image || "/placeholder.svg"}
-              alt={selectedUser?.name || ""}
+              src={userQuery.data?.image || "/placeholder.svg"}
+              alt={userQuery.data?.name || ""}
             />
-            <AvatarFallback>
-              {selectedUser?.name
-                .split(" ")
-                .map((n) => n[0])
-                .join("")}
+            <AvatarFallback className="overflow-hidden">
+              <Image
+                src={shadcnAvatar}
+                alt="Shadcn Avatar"
+                width={24}
+                height={24}
+                className="overflow-hidden"
+              />
             </AvatarFallback>
           </Avatar>
           <div>
-            <h3 className="font-medium">{selectedUser?.name || ""}</h3>
+            <h3 className="font-medium">{userQuery.data?.name || ""}</h3>
           </div>
         </div>
 
         {/* Messages area */}
         <MessageList
-          selectedUser={selectedUser}
+          selectedUser={userQuery.data}
           userId={userId!}
           messages={messages}
           setMessages={setMessages}
@@ -207,7 +159,7 @@ export default function ChatPage() {
         {/* Message input */}
         <MessageInput
           handleSendMessage={handleSendMessage}
-          disabled={!selectedUser}
+          disabled={!userQuery.data}
         />
       </div>
     </div>

@@ -1,73 +1,87 @@
-"use client"
+"use client";
 
-import { ChevronRight, type LucideIcon } from "lucide-react"
-
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible"
 import {
   SidebarGroup,
   SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
+import shadcnAvatar from "@/public/shadcn-avatar.png";
 
-export function NavMain({
-  items,
-}: {
-  items: {
-    title: string
-    url: string
-    icon?: LucideIcon
-    isActive?: boolean
-    items?: {
-      title: string
-      url: string
-    }[]
-  }[]
-}) {
+import { useQuery } from "@tanstack/react-query";
+import axiosClient from "@/lib/axios-client";
+import { authClient } from "@/lib/auth-client";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { User } from "better-auth/types";
+import Image from "next/image";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback } from "react";
+
+export function NavMain() {
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const router = useRouter();
+
+  const createQueryString = useCallback(
+    (name: string, value: string) => {
+      console.log("createQueryString", name, value);
+      const params = new URLSearchParams(searchParams.toString());
+      params.set(name, value);
+
+      return params.toString();
+    },
+    [searchParams]
+  );
+
+  const { data: session } = authClient.useSession();
+  const userId = session?.user?.id;
+  const usersQuery = useQuery({
+    queryKey: ["users"],
+    queryFn: async (): Promise<User[]> => {
+      const { data } = await axiosClient.get("/users", {
+        params: {
+          userId: userId,
+        },
+      });
+      return data ?? [];
+    },
+    enabled: !!userId,
+  });
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Platform</SidebarGroupLabel>
+      <SidebarGroupLabel>Amigos</SidebarGroupLabel>
       <SidebarMenu>
-        {items.map((item) => (
-          <Collapsible
-            key={item.title}
-            asChild
-            defaultOpen={item.isActive}
-            className="group/collapsible"
-          >
-            <SidebarMenuItem>
-              <CollapsibleTrigger asChild>
-                <SidebarMenuButton tooltip={item.title}>
-                  {item.icon && <item.icon />}
-                  <span>{item.title}</span>
-                  <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                </SidebarMenuButton>
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <SidebarMenuSub>
-                  {item.items?.map((subItem) => (
-                    <SidebarMenuSubItem key={subItem.title}>
-                      <SidebarMenuSubButton asChild>
-                        <a href={subItem.url}>
-                          <span>{subItem.title}</span>
-                        </a>
-                      </SidebarMenuSubButton>
-                    </SidebarMenuSubItem>
-                  ))}
-                </SidebarMenuSub>
-              </CollapsibleContent>
-            </SidebarMenuItem>
-          </Collapsible>
+        {usersQuery.data?.map((user) => (
+          <SidebarMenuItem key={user.id}>
+            <SidebarMenuButton
+              tooltip={user.name}
+              onClick={() => {
+                router.push(
+                  pathname + "?" + createQueryString("userId", user.id)
+                );
+              }}
+            >
+              <Avatar>
+                <AvatarImage
+                  src={user.image || "/placeholder.svg"}
+                  alt={user.name}
+                />
+                <AvatarFallback className="overflow-hidden">
+                  <Image
+                    src={shadcnAvatar}
+                    alt="Shadcn Avatar"
+                    width={24}
+                    height={24}
+                    className="overflow-hidden"
+                  />
+                </AvatarFallback>
+              </Avatar>
+              <span>{user.name}</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
         ))}
       </SidebarMenu>
     </SidebarGroup>
-  )
+  );
 }

@@ -58,7 +58,7 @@ export function MessageList({
     scrollToBottom();
   }, [messages]);
 
-  if (!selectedUser) {
+  if (!selectedUser?.id) {
     return (
       <ScrollArea className="flex-1 p-4 overflow-y-auto">
         <div className="h-full flex items-center justify-center">
