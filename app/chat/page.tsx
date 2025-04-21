@@ -17,6 +17,7 @@ import { authClient } from "@/lib/auth-client";
 import type { User } from "better-auth/types";
 import { Message, MessageList } from "@/components/message-list";
 import { useChatSocket } from "@/hooks/use-chat-socket";
+import { useSidebar } from "@/components/ui/sidebar";
 
 // Mock data for users
 
@@ -114,8 +115,8 @@ export default function ChatPage() {
     });
     setNewMessage("");
   };
+  const { toggleSidebar } = useSidebar();
 
-  console.log("userId", userId);
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar for user selection */}
@@ -167,16 +168,17 @@ export default function ChatPage() {
       <div className="flex-1 flex flex-col">
         {/* Chat header */}
         <div className="p-4 border-b bg-white flex items-center">
-          {isMobile && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="mr-2"
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-            >
-              <Menu className="h-5 w-5" />
-            </Button>
-          )}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="mr-2"
+            onClick={() => {
+              toggleSidebar();
+            }}
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
+
           <Avatar className="h-10 w-10 mr-3">
             <AvatarImage
               src={selectedUser?.image || "/placeholder.svg"}
