@@ -28,9 +28,11 @@ import {
 import { authClient } from "@/lib/auth-client";
 import shadcnAvatar from "@/public/shadcn-avatar.png";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export function NavUser() {
   const { isMobile } = useSidebar();
+  const router = useRouter();
 
   const { data: session } = authClient.useSession();
 
@@ -125,7 +127,12 @@ export function NavUser() {
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => authClient.signOut()}>
+            <DropdownMenuItem
+              onClick={async () => {
+                await authClient.signOut();
+                router.refresh();
+              }}
+            >
               <LogOut />
               Log out
             </DropdownMenuItem>
