@@ -112,6 +112,11 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+.body-height {
+  height: calc(100vh - 1px);
+  max-height: calc(100vh - 1px);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
