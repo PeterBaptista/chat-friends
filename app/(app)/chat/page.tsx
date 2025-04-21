@@ -113,7 +113,7 @@ export default function ChatPage() {
   const { toggleSidebar } = useSidebar();
 
   return (
-    <div className="flex body-height bg-gray-50">
+    <div className="flex body-height bg-gray-50 ">
       {/* Main chat area */}
       <div className="flex-1 flex flex-col">
         {/* Chat header */}

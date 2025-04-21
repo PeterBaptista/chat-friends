@@ -78,7 +78,7 @@ export function MessageList({
   }
 
   return (
-    <div className="space-y-4 flex flex-1 flex-col-reverse overflow-y-auto px-4">
+    <div className="space-y-4 flex flex-1 flex-col-reverse overflow-auto px-4 max-w-[100vw] ">
       {messages
         .sort(
           (a, b) => new Date(b.sendAt).getTime() - new Date(a.sendAt).getTime()
@@ -99,7 +99,7 @@ export function MessageList({
                   : "bg-gray-200 text-gray-800"
               )}
             >
-              <p>{message.content}</p>
+              <p className="wrap-break-word">{message.content}</p>
               <p
                 className={cn(
                   "text-xs mt-1",
