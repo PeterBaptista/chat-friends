@@ -100,6 +100,11 @@ export function LoginForm() {
             </FormItem>
           )}
         />
+        <div className="text-right text-sm">
+            <a href="/recover-password" className="underline underline-offset-4">
+              Esqueceu a senha? 
+            </a>
+        </div>
 
         <Button type="submit" className="w-full" disabled={isPending}>
           Login
@@ -125,6 +130,7 @@ export function LoginForm() {
             Registre-se
           </a>
         </div>
+
       </form>
     </Form>
   );
