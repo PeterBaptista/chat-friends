@@ -35,11 +35,11 @@ export function MessageList({
     queryKey: ["messages", selectedUser?.id],
     queryFn: async () => {
       if (!selectedUser) return [];
-      const { data } = await axiosClient.get(`messages`, {});
+      const { data } = await axiosClient.get(`messages/${selectedUser.id}`);
       return data ?? [];
     },
     staleTime: Infinity,
-    enabled: !!selectedUser,
+    enabled: !!selectedUser?.id,
   });
 
   useEffect(() => {
