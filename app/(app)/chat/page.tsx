@@ -68,7 +68,7 @@ export default function ChatPage() {
   const userQuery = useQuery({
     queryKey: ["user", userIdParam],
     queryFn: async () => {
-      const { data } = await axiosClient.get("/users");
+      const { data } = await axiosClient.get(`/users/${userIdParam}`);
       return data ?? [];
     },
     enabled: !!userIdParam,
