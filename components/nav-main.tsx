@@ -25,7 +25,6 @@ export function NavMain() {
 
   const createQueryString = useCallback(
     (name: string, value: string) => {
-      console.log("createQueryString", name, value);
       const params = new URLSearchParams(searchParams.toString());
       params.set(name, value);
 
