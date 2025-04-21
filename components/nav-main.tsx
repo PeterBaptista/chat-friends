@@ -18,6 +18,7 @@ import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback } from "react";
 import { Skeleton } from "./ui/skeleton";
+import { getCookies } from "@/lib/utils";
 
 export function UsersFallback() {
   return (
@@ -53,14 +54,11 @@ export function NavMain() {
 
   const { data: session } = authClient.useSession();
   const userId = session?.user?.id;
+
   const usersQuery = useQuery({
     queryKey: ["users"],
     queryFn: async (): Promise<User[]> => {
-      const { data } = await axiosClient.get("/users", {
-        params: {
-          userId: userId,
-        },
-      });
+      const { data } = await axiosClient.get("/users", {});
       return data ?? [];
     },
     enabled: !!userId,

@@ -2,7 +2,7 @@
 
 import { Dispatch, SetStateAction, useEffect, useRef } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { cn } from "@/lib/utils";
+import { cn, getCookies } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import axiosClient from "@/lib/axios-client";
 import { useChatSocket } from "@/hooks/use-chat-socket";
@@ -35,7 +35,7 @@ export function MessageList({
     queryKey: ["messages", selectedUser?.id],
     queryFn: async () => {
       if (!selectedUser) return [];
-      const { data } = await axiosClient.get(`messages`);
+      const { data } = await axiosClient.get(`messages`, {});
       return data ?? [];
     },
     staleTime: Infinity,

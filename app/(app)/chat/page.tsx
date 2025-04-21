@@ -2,12 +2,10 @@
 
 import type React from "react";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { cn } from "@/lib/utils";
 import { Send, Menu } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useQuery } from "@tanstack/react-query";
@@ -20,6 +18,9 @@ import { useSidebar } from "@/components/ui/sidebar";
 import { useSearchParams } from "next/navigation";
 import shadcnAvatar from "@/public/shadcn-avatar.png";
 import Image from "next/image";
+import Cookies from "js-cookie";
+import { getCookies } from "@/lib/utils";
+
 // Mock data for users
 
 // Mock data for messages
@@ -67,7 +68,7 @@ export default function ChatPage() {
   const userQuery = useQuery({
     queryKey: ["user", userIdParam],
     queryFn: async () => {
-      const { data } = await axiosClient.get(`/users/${userIdParam}`);
+      const { data } = await axiosClient.get("/users");
       return data ?? [];
     },
     enabled: !!userIdParam,
