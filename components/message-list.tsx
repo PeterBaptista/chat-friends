@@ -93,7 +93,7 @@ export function MessageList({
           >
             <div
               className={cn(
-                "max-w-[70%] rounded-lg p-3",
+                "max-w-[85%] rounded-lg p-3",
                 message.userFromId === userId
                   ? "bg-blue-500 text-white"
                   : "bg-gray-200 text-gray-800"
