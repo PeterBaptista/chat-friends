@@ -19,6 +19,7 @@ import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { useRouter, useSearchParams } from "next/navigation";
 
+
 const resetPasswordSchema = z
   .object({
     password: z.string().min(8, {

@@ -18,6 +18,8 @@ import { useMutation } from "@tanstack/react-query";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+
 
 const forgetPasswordSchema = z.object({
   email: z.string().email({
@@ -34,6 +36,7 @@ export function RecoverForm() {
   });
 
   const router = useRouter();
+  const [renderForm, setRenderForm] = useState<boolean>(true);
 
   const { mutate, isPending } = useMutation({
     mutationKey: ["forget-password"],
@@ -49,6 +52,7 @@ export function RecoverForm() {
           },
           onSuccess() {
             toast.success("Email enviado com sucesso");
+            setRenderForm(false);
           },
         }
       );
@@ -61,31 +65,45 @@ export function RecoverForm() {
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+    <div>
+
+      {renderForm
+        ?
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <div className="flex flex-col items-center gap-2 text-center">
+              <h1 className="text-2xl font-bold">Recuperar senha</h1>
+              <p className="text-muted-foreground text-sm text-balance">
+                Não se preocupe ! Essas coisas acontecem...
+              </p>
+            </div>
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input placeholder="john.doe@example.com" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button type="submit" className="w-full" disabled={isPending}>
+              enviar email de recuperação
+            </Button>
+          </form>
+        </Form>
+        :
         <div className="flex flex-col items-center gap-2 text-center">
-          <h1 className="text-2xl font-bold">Recuperar senha</h1>
+          <h1 className="text-2xl font-bold">Email enviado!</h1>
           <p className="text-muted-foreground text-sm text-balance">
-            Não se preocupe ! Essas coisas acontecem...
+              Por gentileza, verifique a sua caixa de email :)
           </p>
         </div>
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input placeholder="john.doe@example.com" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Button type="submit" className="w-full" disabled={isPending}>
-          enviar email de recuperação
-        </Button>
-      </form>
-    </Form>
+      }
+
+    </div>
   );
 }
