@@ -4,6 +4,7 @@ import "./globals.css";
 
 import { TanstackQueryProvider } from "@/providers/tanstack-query-provider";
 import { Toaster } from "@/components/ui/sonner";
+import { SidebarShadcnProvider } from "@/providers/sidebar-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

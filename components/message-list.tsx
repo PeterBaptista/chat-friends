@@ -2,7 +2,7 @@
 
 import { Dispatch, SetStateAction, useEffect, useRef } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { cn } from "@/lib/utils";
+import { cn, getCookies } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import axiosClient from "@/lib/axios-client";
 import { useChatSocket } from "@/hooks/use-chat-socket";
@@ -35,11 +35,11 @@ export function MessageList({
     queryKey: ["messages", selectedUser?.id],
     queryFn: async () => {
       if (!selectedUser) return [];
-      const { data } = await axiosClient.get(`messages`);
+      const { data } = await axiosClient.get(`messages/${selectedUser.id}`);
       return data ?? [];
     },
     staleTime: Infinity,
-    enabled: !!selectedUser,
+    enabled: !!selectedUser?.id,
   });
 
   useEffect(() => {
@@ -50,15 +50,7 @@ export function MessageList({
 
   // Atualiza localmente sem invalidar a query
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  if (!selectedUser) {
+  if (!selectedUser?.id) {
     return (
       <ScrollArea className="flex-1 p-4 overflow-y-auto">
         <div className="h-full flex items-center justify-center">
@@ -86,9 +78,12 @@ export function MessageList({
   }
 
   return (
-    <ScrollArea className="flex-1 p-4 overflow-y-auto">
-      <div className="space-y-4">
-        {messages.map((message) => (
+    <div className="space-y-4 flex flex-1 flex-col-reverse overflow-auto px-4 max-w-[100vw] ">
+      {messages
+        .sort(
+          (a, b) => new Date(b.sendAt).getTime() - new Date(a.sendAt).getTime()
+        )
+        .map((message) => (
           <div
             key={message.id}
             className={cn(
@@ -98,13 +93,13 @@ export function MessageList({
           >
             <div
               className={cn(
-                "max-w-[70%] rounded-lg p-3",
+                "max-w-[85%] rounded-lg p-3",
                 message.userFromId === userId
                   ? "bg-blue-500 text-white"
                   : "bg-gray-200 text-gray-800"
               )}
             >
-              <p>{message.content}</p>
+              <p className="wrap-break-word">{message.content}</p>
               <p
                 className={cn(
                   "text-xs mt-1 flex justify-between gap-4",
@@ -137,8 +132,7 @@ export function MessageList({
             </div>
           </div>
         ))}
-        <div ref={messagesEndRef} />
-      </div>
-    </ScrollArea>
+      <div ref={messagesEndRef} />
+    </div>
   );
 }
