@@ -101,13 +101,32 @@ export function MessageList({
               <p className="wrap-break-word">{message.content}</p>
               <p
                 className={cn(
-                  "text-xs mt-1",
+                  "text-xs mt-1 flex justify-between gap-4",
                   message.userFromId === userId
                     ? "text-blue-100"
                     : "text-gray-500"
                 )}
               >
-                {message.sendAt}
+
+                <span>
+
+                    
+                  {(() => {
+                    const date = new Date(message.sendAt);
+                    return date.getHours().toString().padStart(2, '0') + ':' + date.getMinutes().toString().padStart(2, '0');
+                  })()}
+
+                </span>
+                <span>
+
+                  
+                  {(() => {
+                    const date = new Date(message.sendAt);
+                    return date.getDay().toString().padStart(2, '0') + '/' + date.getMonth().toString().padStart(2, '0') + '/' + date.getFullYear().toString().padStart(2, '0');
+                  })()}
+
+                </span>
+
               </p>
             </div>
           </div>
