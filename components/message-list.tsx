@@ -1,12 +1,11 @@
 "use client";
 
-import { Dispatch, SetStateAction, useEffect, useRef } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { cn, getCookies } from "@/lib/utils";
-import { useQuery } from "@tanstack/react-query";
 import axiosClient from "@/lib/axios-client";
-import { useChatSocket } from "@/hooks/use-chat-socket";
+import { cn } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
 import type { User } from "better-auth/types";
+import { Dispatch, SetStateAction, useEffect, useRef } from "react";
 
 export interface Message {
   id: string;
