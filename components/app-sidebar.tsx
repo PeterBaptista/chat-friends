@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/sidebar";
 import { SidebarLogo } from "./sidebar-logo";
 import { Suspense } from "react";
+import { SidebarNotifications } from "./sidebar-notifications";
 
 // This is sample data.
 const data = {
