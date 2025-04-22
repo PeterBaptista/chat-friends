@@ -31,7 +31,7 @@ export function MessageList({
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const { data, isLoading } = useQuery({
-    queryKey: ["messages", selectedUser?.id],
+    queryKey: ["messages-query", selectedUser?.id],
     queryFn: async () => {
       if (!selectedUser) return [];
       const { data } = await axiosClient.get(`messages/${selectedUser.id}`);
@@ -107,26 +107,28 @@ export function MessageList({
                     : "text-gray-500"
                 )}
               >
-
                 <span>
-
-                    
                   {(() => {
                     const date = new Date(message.sendAt);
-                    return date.getHours().toString().padStart(2, '0') + ':' + date.getMinutes().toString().padStart(2, '0');
+                    return (
+                      date.getHours().toString().padStart(2, "0") +
+                      ":" +
+                      date.getMinutes().toString().padStart(2, "0")
+                    );
                   })()}
-
                 </span>
                 <span>
-
-                  
                   {(() => {
                     const date = new Date(message.sendAt);
-                    return date.getDay().toString().padStart(2, '0') + '/' + date.getMonth().toString().padStart(2, '0') + '/' + date.getFullYear().toString().padStart(2, '0');
+                    return (
+                      date.getDay().toString().padStart(2, "0") +
+                      "/" +
+                      date.getMonth().toString().padStart(2, "0") +
+                      "/" +
+                      date.getFullYear().toString().padStart(2, "0")
+                    );
                   })()}
-
                 </span>
-
               </p>
             </div>
           </div>

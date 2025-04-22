@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,6 +20,7 @@ import shadcnAvatar from "@/public/shadcn-avatar.png";
 import Image from "next/image";
 import Cookies from "js-cookie";
 import { getCookies } from "@/lib/utils";
+import { useWSContext } from "@/modules/chat/context/ws-context";
 
 // Mock data for users
 
@@ -62,6 +63,26 @@ export default function ChatPage() {
   const { data: session } = authClient.useSession();
   const userId = session?.user?.id;
 
+  const { sendMessage, ws } = useWSContext();
+
+  useEffect(() => {
+    if (!ws.current) return;
+    ws.current.onmessage = (event) => {
+      setMessages((prev) => {
+        const newMsg = JSON.parse(event.data);
+        console.log("newMsg", newMsg);
+        console.log("userIdParam", userIdParam);
+        if (
+          newMsg.type !== "message" ||
+          newMsg.userFromId !== userIdParam ||
+          newMsg.userToId !== userId
+        )
+          return prev;
+        return [...prev, newMsg];
+      });
+    };
+  }, [ws?.current]);
+
   const searchParams = useSearchParams();
   const userIdParam = searchParams.get("userId");
 
@@ -78,14 +99,6 @@ export default function ChatPage() {
 
   const isMobile = useIsMobile();
 
-  const { sendMessage } = useChatSocket(userId, (newMessage: string) => {
-    const message = JSON.parse(newMessage);
-
-    setMessages((prev) => {
-      return [...prev, message];
-    });
-  });
-
   const handleSendMessage = (
     e: React.FormEvent,
     newMessage: string,
@@ -100,6 +113,7 @@ export default function ChatPage() {
       userFromId: userId!,
       userToId: userIdParam!,
       content: newMessage,
+      type: "message",
     };
 
     // The sendMessage is now handled in the MessageList component
