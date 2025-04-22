@@ -19,15 +19,15 @@ import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
-const loginSchema = z.object({
+const forgetPasswordSchema = z.object({
   email: z.string().email({
     message: "Coloque um email valido",
   }),
 });
 
 export function RecoverForm() {
-  const form = useForm<z.infer<typeof loginSchema>>({
-    resolver: zodResolver(loginSchema),
+  const form = useForm<z.infer<typeof forgetPasswordSchema>>({
+    resolver: zodResolver(forgetPasswordSchema),
     defaultValues: {
       email: "",
     },
@@ -36,20 +36,19 @@ export function RecoverForm() {
   const router = useRouter();
 
   const { mutate, isPending } = useMutation({
-    mutationKey: ["login"],
-    mutationFn: async (values: z.infer<typeof loginSchema>) => {
-      await authClient.signIn.email(
+    mutationKey: ["forget-password"],
+    mutationFn: async (values: z.infer<typeof forgetPasswordSchema>) => {
+      await authClient.forgetPassword(
         {
           email: values.email,
-          password: "defaultPassword", // Replace with the actual password logic
+          redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/reset-password`
         },
         {
           onError: (error) => {
-            toast.error(`Erro ao fazer login: ${error.error.message}`);
+            toast.error(`Erro ao enviar email: ${error.error.message}`);
           },
           onSuccess() {
-            toast.success("Bem-vindo de volta");
-            router.push("/chat");
+            toast.success("Email enviado com sucesso");
           },
         }
       );
@@ -57,7 +56,7 @@ export function RecoverForm() {
   });
 
   // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof loginSchema>) {
+  function onSubmit(values: z.infer<typeof forgetPasswordSchema>) {
     mutate(values);
   }
 

@@ -101,7 +101,7 @@ export function LoginForm() {
           )}
         />
         <div className="text-right text-sm">
-            <a href="/recover-password" className="underline underline-offset-4">
+            <a href="/forget-password" className="underline underline-offset-4">
               Esqueceu a senha? 
             </a>
         </div>
