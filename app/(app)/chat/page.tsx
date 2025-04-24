@@ -66,16 +66,21 @@ export default function ChatPage() {
   const { sendMessage, ws, wsMessage } = useWSContext();
 
   useEffect(() => {
-    setMessages((prev) => {
-      console.log("userIdParam", userIdParam);
-      if (
-        wsMessage?.type !== "message" ||
-        wsMessage?.userFromId !== userIdParam ||
-        wsMessage?.userToId !== userId
-      )
-        return prev;
-      return [...prev, wsMessage];
-    });
+    if (
+      wsMessage?.type === "message" ||
+      wsMessage?.userFromId !== userIdParam ||
+      wsMessage?.userToId !== userId
+    ) {
+      setMessages((prev) => {
+        return [...prev, wsMessage];
+      });
+    }
+
+    if (wsMessage?.type === "message-cancel") {
+      setMessages((prev) => {
+        return prev.filter((msg) => msg.id !== wsMessage.id);
+      });
+    }
   }, [wsMessage]);
 
   const searchParams = useSearchParams();
