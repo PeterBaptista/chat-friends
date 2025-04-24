@@ -63,6 +63,7 @@ export function FriendInviteDialog({
   useEffect(() => {
     if (!searchTerm) {
       setFilteredUsers(users);
+      setCurrentPage(1);
       return;
     }
     const filtered = users?.filter((user: any) =>
