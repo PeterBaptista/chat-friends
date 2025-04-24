@@ -61,6 +61,10 @@ export function FriendInviteDialog({
 
   // Filter users based on search term
   useEffect(() => {
+    if (!searchTerm) {
+      setFilteredUsers(users);
+      return;
+    }
     const filtered = users?.filter((user: any) =>
       user.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
