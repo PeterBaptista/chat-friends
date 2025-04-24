@@ -124,7 +124,7 @@ export function FriendInviteDialog({
           />
         </div>
 
-        <ScrollArea className="h-[60vh] pr-4 ">
+        <ScrollArea className="max-h-[50vh] pr-4 ">
           <div className="space-y-4 pb-4">
             {currentUsers.length > 0 ? (
               currentUsers.map((user) => (
