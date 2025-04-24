@@ -18,12 +18,13 @@ import {
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axiosClient from "@/lib/axios-client";
 import { Card, CardContent, CardFooter } from "./ui/card";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import Image from "next/image";
 
 import shadcnAvatar from "@/public/shadcn-avatar.png";
+import { useWSContext } from "@/modules/chat/context/ws-context";
 
 function Content() {
   const queryClient = useQueryClient();
@@ -36,6 +37,7 @@ function Content() {
       return response.data;
     },
   });
+  const { sendMessage } = useWSContext();
 
   const respondToInviteMutation = useMutation({
     mutationFn: async ({
@@ -53,7 +55,13 @@ function Content() {
     onSuccess: (_, variables) => {
       const action = variables.status === "accepted" ? "aceito" : "rejeitado";
       toast(`Convite ${action} com sucesso!`);
+      sendMessage({
+        type: "invite-confirm",
+        inviteId: variables.inviteId,
+        status: variables.status,
+      });
       queryClient.invalidateQueries({ queryKey: ["invites-query"] });
+      queryClient.invalidateQueries({ queryKey: ["friends-users-query"] });
     },
     onError: (error) => {
       toast(`Erro ao processar convite. Tente novamente.`);
@@ -184,6 +192,16 @@ export function SidebarNotifications() {
     },
     refetchInterval: 30000, // Refetch every 30 seconds
   });
+  const { ws, wsMessage } = useWSContext();
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    console.log("invite", wsMessage);
+    if (wsMessage?.type === "invite")
+      queryClient.invalidateQueries({ queryKey: ["invites-query"] });
+    if (wsMessage?.type === "invite-confirm")
+      queryClient.invalidateQueries({ queryKey: ["friends-users-query"] });
+  }, [wsMessage]);
 
   const pendingCount =
     invites?.filter((item) => item.invites.status === "pending").length || 0;

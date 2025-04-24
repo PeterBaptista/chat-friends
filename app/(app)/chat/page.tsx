@@ -63,25 +63,20 @@ export default function ChatPage() {
   const { data: session } = authClient.useSession();
   const userId = session?.user?.id;
 
-  const { sendMessage, ws } = useWSContext();
+  const { sendMessage, ws, wsMessage } = useWSContext();
 
   useEffect(() => {
-    if (!ws.current) return;
-    ws.current.onmessage = (event) => {
-      setMessages((prev) => {
-        const newMsg = JSON.parse(event.data);
-        console.log("newMsg", newMsg);
-        console.log("userIdParam", userIdParam);
-        if (
-          newMsg.type !== "message" ||
-          newMsg.userFromId !== userIdParam ||
-          newMsg.userToId !== userId
-        )
-          return prev;
-        return [...prev, newMsg];
-      });
-    };
-  }, [ws?.current]);
+    setMessages((prev) => {
+      console.log("userIdParam", userIdParam);
+      if (
+        wsMessage?.type !== "message" ||
+        wsMessage?.userFromId !== userIdParam ||
+        wsMessage?.userToId !== userId
+      )
+        return prev;
+      return [...prev, wsMessage];
+    });
+  }, [wsMessage]);
 
   const searchParams = useSearchParams();
   const userIdParam = searchParams.get("userId");

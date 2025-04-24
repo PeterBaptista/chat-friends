@@ -59,9 +59,9 @@ export function NavMain() {
   const userId = session?.user?.id;
 
   const usersQuery = useQuery({
-    queryKey: ["users"],
+    queryKey: ["friends-users-query"],
     queryFn: async (): Promise<User[]> => {
-      const { data } = await axiosClient.get("/users", {});
+      const { data } = await axiosClient.get("/friends", {});
       return data ?? [];
     },
     enabled: !!userId,

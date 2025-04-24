@@ -1,6 +1,6 @@
 "use client";
 import { createContext } from "@/lib/react-utils";
-import { PropsWithChildren } from "react";
+import { PropsWithChildren, useState } from "react";
 import "dotenv/config";
 import { useEffect, useRef } from "react";
 import { authClient } from "@/lib/auth-client";
@@ -12,6 +12,7 @@ export function useWSController() {
   const session = authClient.useSession();
   const userId = session.data?.user?.id;
   const queryClient = useQueryClient();
+  const [wsMessage, setWsMessage] = useState<any>(null);
 
   const connectWebSocket = () => {
     if (!userId) return;
@@ -33,6 +34,7 @@ export function useWSController() {
 
     ws.current.onmessage = (event) => {
       console.log("📨 Message received:", event.data);
+      setWsMessage(JSON.parse(event.data));
     };
 
     ws.current.onclose = () => {
@@ -65,7 +67,7 @@ export function useWSController() {
     ws.current?.send(JSON.stringify(message));
   };
 
-  return { sendMessage, ws };
+  return { sendMessage, ws, wsMessage, setWsMessage };
 }
 
 const [Context, useWSContext] =
