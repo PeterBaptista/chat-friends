@@ -31,7 +31,7 @@ export function MessageList({
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const { data, isLoading } = useQuery({
-    queryKey: ["messages", selectedUser?.id],
+    queryKey: ["messages-query", selectedUser?.id],
     queryFn: async () => {
       if (!selectedUser) return [];
       const { data } = await axiosClient.get(`messages/${selectedUser.id}`);
@@ -84,49 +84,51 @@ export function MessageList({
         )
         .map((message) => (
           <div
-            key={message.id}
+            key={message?.id}
             className={cn(
               "flex",
-              message.userFromId === userId ? "justify-end" : "justify-start"
+              message?.userFromId === userId ? "justify-end" : "justify-start"
             )}
           >
             <div
               className={cn(
                 "max-w-[85%] rounded-lg p-3",
-                message.userFromId === userId
+                message?.userFromId === userId
                   ? "bg-blue-500 text-white"
                   : "bg-gray-200 text-gray-800"
               )}
             >
-              <p className="wrap-break-word">{message.content}</p>
+              <p className="wrap-break-word">{message?.content}</p>
               <p
                 className={cn(
                   "text-xs mt-1 flex justify-between gap-4",
-                  message.userFromId === userId
+                  message?.userFromId === userId
                     ? "text-blue-100"
                     : "text-gray-500"
                 )}
               >
-
                 <span>
-
-                    
                   {(() => {
-                    const date = new Date(message.sendAt);
-                    return date.getHours().toString().padStart(2, '0') + ':' + date.getMinutes().toString().padStart(2, '0');
+                    const date = new Date(message?.sendAt);
+                    return (
+                      date.getHours().toString().padStart(2, "0") +
+                      ":" +
+                      date.getMinutes().toString().padStart(2, "0")
+                    );
                   })()}
-
                 </span>
                 <span>
-
-                  
                   {(() => {
-                    const date = new Date(message.sendAt);
-                    return date.getDay().toString().padStart(2, '0') + '/' + date.getMonth().toString().padStart(2, '0') + '/' + date.getFullYear().toString().padStart(2, '0');
+                    const date = new Date(message?.sendAt);
+                    return (
+                      date.getDay().toString().padStart(2, "0") +
+                      "/" +
+                      date.getMonth().toString().padStart(2, "0") +
+                      "/" +
+                      date.getFullYear().toString().padStart(2, "0")
+                    );
                   })()}
-
                 </span>
-
               </p>
             </div>
           </div>

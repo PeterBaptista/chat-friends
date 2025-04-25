@@ -23,10 +23,13 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
+  SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { SidebarLogo } from "./sidebar-logo";
 import { Suspense } from "react";
+import { SidebarNotifications } from "./sidebar-notifications";
+import { FriendInviteDialog, SidebarMenuInvite } from "./friend-invite-dialog";
 
 // This is sample data.
 const data = {
@@ -165,6 +168,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarLogo />
       </SidebarHeader>
       <SidebarContent>
+        <SidebarMenuInvite />
         <Suspense fallback={<UsersFallback />}>
           <NavMain />
         </Suspense>
