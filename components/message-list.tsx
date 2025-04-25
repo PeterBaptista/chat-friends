@@ -77,7 +77,7 @@ export function MessageList({
   }
 
   return (
-    <div className="space-y-4 flex flex-1 flex-col-reverse overflow-auto px-4 max-w-[100vw] ">
+    <div className="space-y-4 flex flex-1 flex-col-reverse overflow-auto px-4 max-w-full ">
       {messages
         .sort(
           (a, b) => new Date(b.sendAt).getTime() - new Date(a.sendAt).getTime()

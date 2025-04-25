@@ -7,8 +7,10 @@ export default function Layout({
   children: React.ReactNode;
 }>) {
   return (
-    <WSProvider>
-      <SidebarShadcnProvider>{children}</SidebarShadcnProvider>
-    </WSProvider>
+    <div className="w-[100vw]">
+      <WSProvider>
+        <SidebarShadcnProvider>{children}</SidebarShadcnProvider>
+      </WSProvider>
+    </div>
   );
 }
