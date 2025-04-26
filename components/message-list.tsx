@@ -1,12 +1,14 @@
 "use client";
 
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useIsMobile } from "@/hooks/use-mobile";
 import axiosClient from "@/lib/axios-client";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import type { User } from "better-auth/types";
+import { motion } from "framer-motion";
 import { Dispatch, SetStateAction, useEffect, useRef } from "react";
-
+import { useSidebar } from "./ui/sidebar";
 export interface Message {
   id: string;
   sendAt: string;
@@ -29,6 +31,9 @@ export function MessageList({
   setMessages,
 }: MessageListProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const { open } = useSidebar();
+  const isMobile = useIsMobile();
 
   const { data, isLoading } = useQuery({
     queryKey: ["messages-query", selectedUser?.id],
@@ -77,7 +82,16 @@ export function MessageList({
   }
 
   return (
-    <div className="space-y-4 flex flex-1 flex-col-reverse overflow-auto px-4 max-w-full ">
+    <motion.div
+      layout
+      className={cn(
+        "space-y-4 flex flex-1 flex-col-reverse overflow-auto px-4",
+        {
+          "body-width-sidebar": open && !isMobile,
+          "w-[100vw]": !open || isMobile,
+        }
+      )}
+    >
       {messages
         .sort(
           (a, b) =>
@@ -135,6 +149,6 @@ export function MessageList({
           </div>
         ))}
       <div ref={messagesEndRef} />
-    </div>
+    </motion.div>
   );
 }

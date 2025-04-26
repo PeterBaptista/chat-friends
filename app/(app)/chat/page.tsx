@@ -2,25 +2,22 @@
 
 import type React from "react";
 
-import { useEffect, useState } from "react";
+import { Message, MessageList } from "@/components/message-list";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Send, Menu } from "lucide-react";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { useQuery } from "@tanstack/react-query";
-import axiosClient from "@/lib/axios-client";
-import { v4 as uuid } from "uuid";
-import { authClient } from "@/lib/auth-client";
-import { Message, MessageList } from "@/components/message-list";
-import { useChatSocket } from "@/hooks/use-chat-socket";
 import { useSidebar } from "@/components/ui/sidebar";
-import { useSearchParams } from "next/navigation";
-import shadcnAvatar from "@/public/shadcn-avatar.png";
-import Image from "next/image";
-import Cookies from "js-cookie";
-import { getCookies } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { authClient } from "@/lib/auth-client";
+import axiosClient from "@/lib/axios-client";
 import { useWSContext } from "@/modules/chat/context/ws-context";
+import shadcnAvatar from "@/public/shadcn-avatar.png";
+import { useQuery } from "@tanstack/react-query";
+import { Menu, Send } from "lucide-react";
+import Image from "next/image";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { v4 as uuid } from "uuid";
 
 // Mock data for users
 
@@ -154,7 +151,7 @@ export default function ChatPage() {
                 alt="Shadcn Avatar"
                 width={24}
                 height={24}
-                className="overflow-hidden"
+                className="overflow-hidden "
               />
             </AvatarFallback>
           </Avatar>

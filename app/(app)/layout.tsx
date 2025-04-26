@@ -1,3 +1,4 @@
+"use client";
 import { WSProvider } from "@/modules/chat/context/ws-context";
 import { SidebarShadcnProvider } from "@/providers/sidebar-provider";
 
@@ -7,7 +8,7 @@ export default function Layout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="w-[100vw]">
+    <div className="">
       <WSProvider>
         <SidebarShadcnProvider>{children}</SidebarShadcnProvider>
       </WSProvider>
