@@ -95,8 +95,7 @@ export function NavMain() {
                   <Image
                     src={shadcnAvatar}
                     alt="Shadcn Avatar"
-                    width={24}
-                    height={24}
+                    sizes="100%"
                     className="overflow-hidden"
                   />
                 </AvatarFallback>

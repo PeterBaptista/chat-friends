@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { Bell, Check, Mail, X } from "lucide-react";
+import { Check, Mail, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -15,16 +15,16 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axiosClient from "@/lib/axios-client";
-import { Card, CardContent, CardFooter } from "./ui/card";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import Image from "next/image";
+import { Card, CardContent, CardFooter } from "./ui/card";
 
-import shadcnAvatar from "@/public/shadcn-avatar.png";
 import { useWSContext } from "@/modules/chat/context/ws-context";
+import shadcnAvatar from "@/public/shadcn-avatar.png";
 
 function Content() {
   const queryClient = useQueryClient();
@@ -113,8 +113,7 @@ function Content() {
                       <Image
                         src={shadcnAvatar}
                         alt="Shadcn Avatar"
-                        width={24}
-                        height={24}
+                        sizes="100%"
                         className="overflow-hidden"
                       />
                     </AvatarFallback>
