@@ -108,7 +108,10 @@ export function MessageList({
               message?.userFromId === userId ? "justify-end" : "justify-start"
             )}
           >
-            <div
+            <motion.div
+              initial={{ x: -100 }}
+              animate={{ x: 0 }}
+              transition={{ type: "spring", bounce: 0.25 }}
               className={cn(
                 "max-w-[85%] rounded-lg p-3 z-20",
                 message?.userFromId === userId
@@ -148,7 +151,7 @@ export function MessageList({
                   })()}
                 </span>
               </p>
-            </div>
+            </motion.div>
           </div>
         ))}
       <div ref={messagesEndRef} />
