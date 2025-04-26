@@ -5,7 +5,10 @@ import axiosClient from "@/lib/axios-client";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import type { User } from "better-auth/types";
+import { log } from "console";
 import { Dispatch, SetStateAction, useEffect, useRef } from "react";
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 export interface Message {
   id: string;
@@ -101,7 +104,7 @@ export function MessageList({
               <p className="wrap-break-word">{message?.content}</p>
               <p
                 className={cn(
-                  "text-xs mt-1 flex justify-between gap-4",
+                  "text-xs mt-1 flex justify-end gap-4",
                   message?.userFromId === userId
                     ? "text-blue-100"
                     : "text-gray-500"
@@ -109,24 +112,14 @@ export function MessageList({
               >
                 <span>
                   {(() => {
-                    const date = new Date(message?.sendAt);
-                    return (
-                      date.getHours().toString().padStart(2, "0") +
-                      ":" +
-                      date.getMinutes().toString().padStart(2, "0")
-                    );
-                  })()}
-                </span>
-                <span>
-                  {(() => {
-                    const date = new Date(message?.sendAt);
-                    return (
-                      date.getDay().toString().padStart(2, "0") +
-                      "/" +
-                      date.getMonth().toString().padStart(2, "0") +
-                      "/" +
-                      date.getFullYear().toString().padStart(2, "0")
-                    );
+                    if (!message?.sendAt) {
+                      return "Data inválida"; // Fallback message if sendAt is missing
+                    }
+                    const date = new Date(message.sendAt);
+                    if (isNaN(date.getTime())) {
+                      return "Data inválida"; // Fallback message if the date is invalid
+                    }
+                    return format(date, "dd/MM/yyyy hh:mma", { locale: ptBR });
                   })()}
                 </span>
               </p>
