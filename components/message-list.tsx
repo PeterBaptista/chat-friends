@@ -134,11 +134,11 @@ export function MessageList({
                 <span>
                   {(() => {
                     if (!message?.sendAt) {
-                      return "Data inválida"; // Fallback message if sendAt is missing
+                      return "Data inválida"; 
                     }
                     const date = new Date(message.sendAt);
                     if (isNaN(date.getTime())) {
-                      return "Data inválida"; // Fallback message if the date is invalid
+                      return "Data inválida"; 
                     }
                     return format(date, "dd/MM/yyyy hh:mma", { locale: ptBR });
                   })()}
