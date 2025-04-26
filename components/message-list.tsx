@@ -88,7 +88,7 @@ export function MessageList({
     <motion.div
       layout
       className={cn(
-        "space-y-4 flex flex-1 flex-col-reverse overflow-auto px-4 bg-transparent ",
+        "space-y-4 flex flex-1 flex-col-reverse overflow-auto px-4 bg-transparent z-20 ",
         {
           "body-width-sidebar": open && !isMobile,
           "w-[100vw]": !open || isMobile,
