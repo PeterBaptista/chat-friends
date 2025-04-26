@@ -60,7 +60,7 @@ export function MessageList({
   if (!selectedUser?.id) {
     return (
       <ScrollArea className="flex-1 p-4 overflow-y-auto bg-transparent">
-        <div className="h-full flex items-center justify-center">
+        <div className="h-full flex items-center justify-center z-20">
           <div className="text-center text-gray-500">
             <p className="text-lg font-medium">Nenhum usuário selecionado</p>
             <p className="text-sm">
@@ -75,7 +75,7 @@ export function MessageList({
   if (isLoading) {
     return (
       <ScrollArea className="flex-1 p-4 overflow-y-auto bg-transparent">
-        <div className="h-full flex items-center justify-center">
+        <div className="h-full flex items-center justify-center z-20">
           <div className="text-center text-gray-500">
             <p className="text-lg font-medium">Carregando mensagens...</p>
           </div>
