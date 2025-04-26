@@ -9,7 +9,7 @@ export default function Layout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="relative bg-transparent">
+    <div className="relative bg-transparent overflow-hidden">
       <BubblesBackground className="absolute z-10 " />
       <WSProvider>
         <SidebarShadcnProvider>{children}</SidebarShadcnProvider>

@@ -58,7 +58,12 @@ export function BubblesBackground({ className }: { className?: string }) {
   }, []);
 
   return (
-    <svg className={cn("w-full body-height z-50 bg-primary/10", className)}>
+    <svg
+      className={cn(
+        "w-full body-height z-50 bg-primary/10 overflow-hidden",
+        className
+      )}
+    >
       {bubbles.map((bubble, index) => (
         <Bubble key={index} {...bubble} />
       ))}
