@@ -80,7 +80,8 @@ export function MessageList({
     <div className="space-y-4 flex flex-1 flex-col-reverse overflow-auto px-4 max-w-full ">
       {messages
         .sort(
-          (a, b) => new Date(b.sendAt).getTime() - new Date(a.sendAt).getTime()
+          (a, b) =>
+            new Date(b?.sendAt).getTime() - new Date(a?.sendAt).getTime()
         )
         .map((message) => (
           <div
