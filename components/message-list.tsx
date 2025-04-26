@@ -109,7 +109,7 @@ export function MessageList({
             )}
           >
             <motion.div
-              initial={{ x: -100 }}
+              initial={{ x: message?.userFromId === userId ? -100 : 100 }}
               animate={{ x: 0 }}
               transition={{ type: "spring", bounce: 0.25 }}
               className={cn(
