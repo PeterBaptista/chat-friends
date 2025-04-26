@@ -12,7 +12,7 @@ import { authClient } from "@/lib/auth-client";
 import axiosClient from "@/lib/axios-client";
 import { useWSContext } from "@/modules/chat/context/ws-context";
 import shadcnAvatar from "@/public/shadcn-avatar.png";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Menu, Send } from "lucide-react";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
@@ -59,29 +59,32 @@ function MessageInput({
 export default function ChatPage() {
   const { data: session } = authClient.useSession();
   const userId = session?.user?.id;
+  const searchParams = useSearchParams();
+
+  const userIdParam = searchParams.get("userId");
 
   const { sendMessage, ws, wsMessage } = useWSContext();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     if (
-      wsMessage?.type === "message" ||
-      wsMessage?.userFromId !== userIdParam ||
-      wsMessage?.userToId !== userId
+      wsMessage?.type === "message" &&
+      wsMessage.userToId === userId &&
+      wsMessage.userFromId === userIdParam
     ) {
       setMessages((prev) => {
         return [...prev, wsMessage];
       });
+      queryClient.invalidateQueries({ queryKey: ["messages-query"] });
     }
 
     if (wsMessage?.type === "message-cancel") {
       setMessages((prev) => {
         return prev.filter((msg) => msg.id !== wsMessage.id);
       });
+      queryClient.invalidateQueries({ queryKey: ["messages-query"] });
     }
   }, [wsMessage]);
-
-  const searchParams = useSearchParams();
-  const userIdParam = searchParams.get("userId");
 
   const userQuery = useQuery({
     queryKey: ["user", userIdParam],

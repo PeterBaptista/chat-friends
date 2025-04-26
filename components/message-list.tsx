@@ -42,7 +42,10 @@ export function MessageList({
       const { data } = await axiosClient.get(`messages/${selectedUser.id}`);
       return data ?? [];
     },
-    staleTime: Infinity,
+    networkMode: "online",
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
+
     enabled: !!selectedUser?.id,
   });
 
