@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,8 +11,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { authClient } from "@/lib/auth-client";
+import axiosClient from "@/lib/axios-client";
+import { useWSContext } from "@/modules/chat/context/ws-context";
+import shadcnAvatar from "@/public/shadcn-avatar.png";
+import { useQuery } from "@tanstack/react-query";
 import {
   Check,
   ChevronLeft,
@@ -24,19 +28,14 @@ import {
   Send,
   UserPlus,
 } from "lucide-react";
+import Image from "next/image";
+import { useEffect, useState } from "react";
 import {
   SidebarGroup,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "./ui/sidebar";
-import { useWSContext } from "@/modules/chat/context/ws-context";
-import { useQuery } from "@tanstack/react-query";
-import axiosClient from "@/lib/axios-client";
-import Image from "next/image";
-import shadcnAvatar from "@/public/shadcn-avatar.png";
-import { authClient } from "@/lib/auth-client";
 
 // Mock user data
 
@@ -146,8 +145,7 @@ export function FriendInviteDialog({
                             <Image
                               src={shadcnAvatar}
                               alt="Shadcn Avatar"
-                              width={24}
-                              height={24}
+                              sizes="100%"
                               className="overflow-hidden"
                             />
                           </AvatarFallback>

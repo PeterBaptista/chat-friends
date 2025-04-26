@@ -2,25 +2,22 @@
 
 import type React from "react";
 
-import { useEffect, useState } from "react";
+import { Message, MessageList } from "@/components/message-list";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Send, Menu } from "lucide-react";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { useQuery } from "@tanstack/react-query";
-import axiosClient from "@/lib/axios-client";
-import { v4 as uuid } from "uuid";
-import { authClient } from "@/lib/auth-client";
-import { Message, MessageList } from "@/components/message-list";
-import { useChatSocket } from "@/hooks/use-chat-socket";
 import { useSidebar } from "@/components/ui/sidebar";
-import { useSearchParams } from "next/navigation";
-import shadcnAvatar from "@/public/shadcn-avatar.png";
-import Image from "next/image";
-import Cookies from "js-cookie";
-import { getCookies } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { authClient } from "@/lib/auth-client";
+import axiosClient from "@/lib/axios-client";
 import { useWSContext } from "@/modules/chat/context/ws-context";
+import shadcnAvatar from "@/public/shadcn-avatar.png";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Menu, Send } from "lucide-react";
+import Image from "next/image";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { v4 as uuid } from "uuid";
 
 // Mock data for users
 
@@ -39,7 +36,7 @@ function MessageInput({
 }) {
   const [newMessage, setNewMessage] = useState("");
   return (
-    <div className="p-4 border-t bg-white">
+    <div className="p-4 border-t z-20 bg-white">
       <form
         onSubmit={(e) => handleSendMessage(e, newMessage, setNewMessage)}
         className="flex space-x-2"
@@ -62,29 +59,32 @@ function MessageInput({
 export default function ChatPage() {
   const { data: session } = authClient.useSession();
   const userId = session?.user?.id;
+  const searchParams = useSearchParams();
+
+  const userIdParam = searchParams.get("userId");
 
   const { sendMessage, ws, wsMessage } = useWSContext();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     if (
-      wsMessage?.type === "message" ||
-      wsMessage?.userFromId !== userIdParam ||
-      wsMessage?.userToId !== userId
+      wsMessage?.type === "message" &&
+      wsMessage.userToId === userId &&
+      wsMessage.userFromId === userIdParam
     ) {
       setMessages((prev) => {
         return [...prev, wsMessage];
       });
+      queryClient.invalidateQueries({ queryKey: ["messages-query"] });
     }
 
     if (wsMessage?.type === "message-cancel") {
       setMessages((prev) => {
         return prev.filter((msg) => msg.id !== wsMessage.id);
       });
+      queryClient.invalidateQueries({ queryKey: ["messages-query"] });
     }
   }, [wsMessage]);
-
-  const searchParams = useSearchParams();
-  const userIdParam = searchParams.get("userId");
 
   const userQuery = useQuery({
     queryKey: ["user", userIdParam],
@@ -127,11 +127,11 @@ export default function ChatPage() {
   const { toggleSidebar } = useSidebar();
 
   return (
-    <div className="flex body-height bg-gray-50 ">
+    <div className="flex body-height bg-transparent  ">
       {/* Main chat area */}
       <div className="flex-1 flex flex-col">
         {/* Chat header */}
-        <div className="p-4 border-b bg-white flex items-center">
+        <div className="p-4 border-b bg-white z-20 flex items-center">
           <Button
             variant="ghost"
             size="icon"
@@ -152,9 +152,8 @@ export default function ChatPage() {
               <Image
                 src={shadcnAvatar}
                 alt="Shadcn Avatar"
-                width={24}
-                height={24}
-                className="overflow-hidden"
+                sizes="100%"
+                className="overflow-hidden "
               />
             </AvatarFallback>
           </Avatar>

@@ -10,16 +10,16 @@ import {
 } from "@/components/ui/sidebar";
 import shadcnAvatar from "@/public/shadcn-avatar.png";
 
-import { useQuery } from "@tanstack/react-query";
-import axiosClient from "@/lib/axios-client";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { authClient } from "@/lib/auth-client";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import axiosClient from "@/lib/axios-client";
+import { useQuery } from "@tanstack/react-query";
 import { User } from "better-auth/types";
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Skeleton } from "./ui/skeleton";
-import { getCookies } from "@/lib/utils";
 
 export function UsersFallback() {
   return (
@@ -58,6 +58,8 @@ export function NavMain() {
   const { data: session } = authClient.useSession();
   const userId = session?.user?.id;
 
+  const isMobile = useIsMobile();
+
   const usersQuery = useQuery({
     queryKey: ["friends-users-query"],
     queryFn: async (): Promise<User[]> => {
@@ -76,7 +78,9 @@ export function NavMain() {
             <SidebarMenuButton
               tooltip={user.name}
               onClick={() => {
-                toggleSidebar();
+                if (isMobile) {
+                  toggleSidebar(); // Add toggleSidebar() inside the if block for mobile
+                }
                 router.push(
                   pathname + "?" + createQueryString("userId", user.id)
                 );
@@ -91,8 +95,7 @@ export function NavMain() {
                   <Image
                     src={shadcnAvatar}
                     alt="Shadcn Avatar"
-                    width={24}
-                    height={24}
+                    sizes="100%"
                     className="overflow-hidden"
                   />
                 </AvatarFallback>

@@ -1,13 +1,15 @@
 "use client";
 
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useIsMobile } from "@/hooks/use-mobile";
 import axiosClient from "@/lib/axios-client";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import type { User } from "better-auth/types";
+import { motion } from "framer-motion";
 import { log } from "console";
 import { Dispatch, SetStateAction, useEffect, useRef } from "react";
-import { format } from 'date-fns';
+import { useSidebar } from "./ui/sidebar";import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 export interface Message {
@@ -33,6 +35,9 @@ export function MessageList({
 }: MessageListProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  const { open } = useSidebar();
+  const isMobile = useIsMobile();
+
   const { data, isLoading } = useQuery({
     queryKey: ["messages-query", selectedUser?.id],
     queryFn: async () => {
@@ -40,7 +45,10 @@ export function MessageList({
       const { data } = await axiosClient.get(`messages/${selectedUser.id}`);
       return data ?? [];
     },
-    staleTime: Infinity,
+    networkMode: "online",
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
+
     enabled: !!selectedUser?.id,
   });
 
@@ -54,8 +62,8 @@ export function MessageList({
 
   if (!selectedUser?.id) {
     return (
-      <ScrollArea className="flex-1 p-4 overflow-y-auto">
-        <div className="h-full flex items-center justify-center">
+      <ScrollArea className="flex-1 p-4 overflow-y-auto bg-transparent">
+        <div className="h-full flex items-center justify-center z-20">
           <div className="text-center text-gray-500">
             <p className="text-lg font-medium">Nenhum usuário selecionado</p>
             <p className="text-sm">
@@ -69,8 +77,8 @@ export function MessageList({
 
   if (isLoading) {
     return (
-      <ScrollArea className="flex-1 p-4 overflow-y-auto">
-        <div className="h-full flex items-center justify-center">
+      <ScrollArea className="flex-1 p-4 overflow-y-auto bg-transparent">
+        <div className="h-full flex items-center justify-center z-20">
           <div className="text-center text-gray-500">
             <p className="text-lg font-medium">Carregando mensagens...</p>
           </div>
@@ -80,22 +88,35 @@ export function MessageList({
   }
 
   return (
-    <div className="space-y-4 flex flex-1 flex-col-reverse overflow-auto px-4 max-w-[100vw] ">
+    <motion.div
+      layout
+      className={cn(
+        "space-y-4 flex flex-1 flex-col-reverse overflow-auto px-4 bg-transparent z-20 ",
+        {
+          "body-width-sidebar": open && !isMobile,
+          "w-[100vw]": !open || isMobile,
+        }
+      )}
+    >
       {messages
         .sort(
-          (a, b) => new Date(b.sendAt).getTime() - new Date(a.sendAt).getTime()
+          (a, b) =>
+            new Date(b?.sendAt).getTime() - new Date(a?.sendAt).getTime()
         )
-        .map((message) => (
+        .map((message, index) => (
           <div
-            key={message?.id}
+            key={message?.id ?? `${index}`}
             className={cn(
               "flex",
               message?.userFromId === userId ? "justify-end" : "justify-start"
             )}
           >
-            <div
+            <motion.div
+              initial={{ x: message?.userFromId === userId ? -100 : 100 }}
+              animate={{ x: 0 }}
+              transition={{ type: "spring", bounce: 0.25 }}
               className={cn(
-                "max-w-[85%] rounded-lg p-3",
+                "max-w-[85%] rounded-lg p-3 z-20",
                 message?.userFromId === userId
                   ? "bg-blue-500 text-white"
                   : "bg-gray-200 text-gray-800"
@@ -123,10 +144,10 @@ export function MessageList({
                   })()}
                 </span>
               </p>
-            </div>
+            </motion.div>
           </div>
         ))}
       <div ref={messagesEndRef} />
-    </div>
+    </motion.div>
   );
 }
