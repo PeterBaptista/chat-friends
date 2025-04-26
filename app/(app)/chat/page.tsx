@@ -36,7 +36,7 @@ function MessageInput({
 }) {
   const [newMessage, setNewMessage] = useState("");
   return (
-    <div className="p-4 border-t bg-white">
+    <div className="p-4 border-t z-20 bg-white">
       <form
         onSubmit={(e) => handleSendMessage(e, newMessage, setNewMessage)}
         className="flex space-x-2"
@@ -127,11 +127,11 @@ export default function ChatPage() {
   const { toggleSidebar } = useSidebar();
 
   return (
-    <div className="flex body-height bg-gray-50 ">
+    <div className="flex body-height bg-transparent  ">
       {/* Main chat area */}
       <div className="flex-1 flex flex-col">
         {/* Chat header */}
-        <div className="p-4 border-b bg-white flex items-center">
+        <div className="p-4 border-b bg-white z-20 flex items-center">
           <Button
             variant="ghost"
             size="icon"

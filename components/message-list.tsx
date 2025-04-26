@@ -59,7 +59,7 @@ export function MessageList({
 
   if (!selectedUser?.id) {
     return (
-      <ScrollArea className="flex-1 p-4 overflow-y-auto">
+      <ScrollArea className="flex-1 p-4 overflow-y-auto bg-transparent">
         <div className="h-full flex items-center justify-center">
           <div className="text-center text-gray-500">
             <p className="text-lg font-medium">Nenhum usuário selecionado</p>
@@ -74,7 +74,7 @@ export function MessageList({
 
   if (isLoading) {
     return (
-      <ScrollArea className="flex-1 p-4 overflow-y-auto">
+      <ScrollArea className="flex-1 p-4 overflow-y-auto bg-transparent">
         <div className="h-full flex items-center justify-center">
           <div className="text-center text-gray-500">
             <p className="text-lg font-medium">Carregando mensagens...</p>
@@ -88,7 +88,7 @@ export function MessageList({
     <motion.div
       layout
       className={cn(
-        "space-y-4 flex flex-1 flex-col-reverse overflow-auto px-4",
+        "space-y-4 flex flex-1 flex-col-reverse overflow-auto px-4 bg-transparent ",
         {
           "body-width-sidebar": open && !isMobile,
           "w-[100vw]": !open || isMobile,
@@ -110,7 +110,7 @@ export function MessageList({
           >
             <div
               className={cn(
-                "max-w-[85%] rounded-lg p-3",
+                "max-w-[85%] rounded-lg p-3 z-20",
                 message?.userFromId === userId
                   ? "bg-blue-500 text-white"
                   : "bg-gray-200 text-gray-800"
