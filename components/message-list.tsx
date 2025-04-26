@@ -97,9 +97,9 @@ export function MessageList({
           (a, b) =>
             new Date(b?.sendAt).getTime() - new Date(a?.sendAt).getTime()
         )
-        .map((message) => (
+        .map((message, index) => (
           <div
-            key={message?.id}
+            key={message?.id ?? `${index}`}
             className={cn(
               "flex",
               message?.userFromId === userId ? "justify-end" : "justify-start"
