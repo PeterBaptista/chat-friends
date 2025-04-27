@@ -33,7 +33,7 @@ function MessageInput({
 }) {
   const [newMessage, setNewMessage] = useState("");
   return (
-    <div className="p-4 border-t z-20 bg-white">
+    <div className="p-4 border-t z-20 bg-white dark:bg-neutral-900">
       <form
         onSubmit={(e) => handleSendMessage(e, newMessage, setNewMessage)}
         className="flex space-x-2"
@@ -128,7 +128,7 @@ export default function ChatPage() {
       {/* Main chat area */}
       <div className="flex-1 flex flex-col">
         {/* Chat header */}
-        <div className="p-4 border-b bg-white z-20 flex items-center">
+        <div className="p-4 border-b bg-white z-20 flex items-center dark:bg-neutral-900">
           <Button
             variant="ghost"
             size="icon"
