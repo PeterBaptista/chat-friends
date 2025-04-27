@@ -24,6 +24,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { SettingsDialog } from "./settings-dialog";
+import { ToggleTheme } from "./toggle-theme";
 
 export function NavUser() {
   const { isMobile } = useSidebar();
@@ -101,14 +102,26 @@ export function NavUser() {
                   </div>
                 </div>
               </DropdownMenuLabel>
+
               <DropdownMenuSeparator />
+
+              <DropdownMenuGroup>
+                <DropdownMenuItem>
+                  <ToggleTheme />
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+
+              <DropdownMenuSeparator />
+
               <DropdownMenuGroup>
                 <DropdownMenuItem onClick={() => setOpen(true)}>
                   <UserCog />
                   Configurações do usuário
                 </DropdownMenuItem>
               </DropdownMenuGroup>
+
               <DropdownMenuSeparator />
+
               <DropdownMenuItem
                 onClick={async () => {
                   await authClient.signOut();
@@ -118,6 +131,7 @@ export function NavUser() {
                 <LogOut />
                 Log out
               </DropdownMenuItem>
+
             </DropdownMenuContent>
           </DropdownMenu>
         </SidebarMenuItem>
